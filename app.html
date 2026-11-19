@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b0f1a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Snowboard Skill Tree</title>
+<style>
+:root{
+  --bg:#0b0f1a; --panel:#141a2b; --panel2:#1c2440; --text:#ffffff; --muted:#c3cad8; --line:#3a4566;
+  --done:#3dff8f; --learn:#ffd23d; --next:#3ad7ff; --lock:#8b95ab; --accent:#ff5fd2; --danger:#ff6b6b;
+  --doneBg:rgba(61,255,143,.14); --learnBg:rgba(255,210,61,.14); --nextBg:rgba(58,215,255,.12);
+  --shadow:0 0 14px;
+}
+body.sun{
+  --bg:#ffffff; --panel:#f1f3f8; --panel2:#e4e8f2; --text:#000000; --muted:#2b3245; --line:#6b7591;
+  --done:#007a3d; --learn:#8a5a00; --next:#0058b3; --lock:#4a5266; --accent:#a1007a; --danger:#b00020;
+  --doneBg:#d6f5e3; --learnBg:#fff0c2; --nextBg:#d8e9ff; --shadow:0 0 0;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.4}
+button{font:inherit;color:inherit;cursor:pointer}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 12px;display:flex;gap:8px;align-items:center}
+header h1{font-size:18px;margin:0;flex:1;letter-spacing:.5px;text-transform:uppercase}
+.hbtn{min-height:48px;min-width:48px;padding:0 14px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-weight:700}
+.hbtn.primary{border-color:var(--accent);color:var(--accent)}
+#banner{display:none;background:var(--danger);color:#fff;padding:10px 12px;font-weight:600}
+#banner.show{display:block}
+#nudge{display:none;background:var(--panel2);padding:10px 12px;border-bottom:1px solid var(--line)}
+#nudge.show{display:flex;gap:10px;align-items:center}
+#nudge span{flex:1}
+.wrap{max-width:760px;margin:0 auto;padding:12px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14px;color:var(--muted);margin:4px 0 10px}
+.legend b{color:var(--text)}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px;border:2px solid}
+.progress{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.prog{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.prog .t{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.prog .n{font-size:20px;font-weight:800}
+.bar{height:6px;background:var(--panel2);border-radius:3px;margin-top:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--done)}
+#treeWrap{position:relative}
+#lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+#tree{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;column-gap:22px;row-gap:22px}
+.sec{grid-column:1/-1;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);font-size:14px;margin-top:6px;display:flex;gap:8px;align-items:center}
+.sec.split{display:grid;grid-template-columns:1fr 1fr;column-gap:22px}
+.node{position:relative;min-height:72px;text-align:left;border-radius:14px;border:2px solid var(--lock);background:var(--panel);padding:24px 10px 10px 12px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.node.span{grid-column:1/-1;justify-self:center;width:min(100%,360px)}
+.node .nm{font-weight:700;font-size:16px;line-height:1.25}
+.node .meta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 8px}
+.node .st{position:absolute;top:-10px;right:8px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:8px;background:var(--bg);border:2px solid currentColor}
+.node.locked{color:var(--text)}
+.node.locked .st{color:var(--lock)}
+.node.next{border-color:var(--next);background:linear-gradient(var(--nextBg),var(--nextBg)),var(--panel);box-shadow:var(--shadow) rgba(58,215,255,.45)}
+.node.next .st{color:var(--next)}
+.node.learning{border-color:var(--learn);background:linear-gradient(var(--learnBg),var(--learnBg)),var(--panel);box-shadow:var(--shadow) rgba(255,210,61,.45)}
+.node.learning .st{color:var(--learn)}
+.node.done{border-color:var(--done);background:linear-gradient(var(--doneBg),var(--doneBg)),var(--panel)}
+.node.done .st{color:var(--done)}
+.node.dim .nm{color:var(--muted)}
+.chip{font-size:12px;font-weight:700;padding:1px 6px;border-radius:6px;border:1px solid var(--line);white-space:nowrap}
+.chip.goal{border-color:var(--accent);color:var(--accent)}
+.chip.weak{border-color:var(--danger);color:var(--danger)}
+/* sheet */
+#sheet,#planSheet,#menuSheet{position:fixed;inset:0;z-index:20;display:none;background:rgba(0,0,0,.55)}
+#sheet.show,#planSheet.show,#menuSheet.show{display:block}
+.panel{position:absolute;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:var(--bg);border-top:3px solid var(--accent);border-radius:18px 18px 0 0;padding:14px 14px 28px;max-width:760px;margin:0 auto}
+.panel h2{margin:0 52px 4px 0;font-size:21px;line-height:1.2}
+.close{position:absolute;top:10px;right:10px;width:48px;height:48px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-size:22px;font-weight:800}
+.sub{color:var(--muted);font-size:14px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:6px}
+.status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.status button{min-height:58px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-weight:800;font-size:16px}
+.status button.on[data-s=locked]{border-color:var(--lock);background:var(--panel2)}
+.status button.on[data-s=learning]{border-color:var(--learn);background:var(--learnBg);color:var(--learn)}
+.status button.on[data-s=done]{border-color:var(--done);background:var(--doneBg);color:var(--done)}
+.noteRow{display:flex;gap:8px;margin-bottom:6px}
+textarea,input[type=text],input[type=url],input[type=date]{width:100%;font:inherit;color:var(--text);background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:10px}
+textarea{min-height:52px;resize:vertical}
+.btn{min-height:52px;padding:0 16px;border-radius:12px;border:2px solid var(--accent);background:var(--panel);color:var(--accent);font-weight:800;white-space:nowrap}
+.btn.wide{width:100%}
+.btn.plain{border-color:var(--line);color:var(--text)}
+.saved{color:var(--done);font-weight:700;font-size:14px;min-height:20px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
+.card h3{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.8px;color:var(--accent)}
+.card ul{margin:0;padding-left:20px}
+.card li{margin:4px 0}
+.card.test{border:2px solid var(--next)}
+.card.safety{border:2px solid var(--danger)}
+.pre{display:flex;flex-wrap:wrap;gap:8px}
+.pre button{min-height:44px;border-radius:10px;border:2px solid var(--line);background:var(--panel2);padding:0 10px;font-size:14px;font-weight:600}
+.log li{list-style:none;margin:6px 0;padding:6px 0;border-bottom:1px solid var(--line)}
+.log{padding:0!important}
+.log .d{font-size:12.5px;color:var(--muted)}
+.del{float:right;border:none;background:none;color:var(--danger);font-weight:700;min-height:36px;min-width:36px}
+a{color:var(--next);word-break:break-all}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.seg button{min-height:56px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-weight:800}
+.seg button.on{border-color:var(--accent);color:var(--accent);background:var(--panel2)}
+.pitem{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:12px;margin:12px 0}
+.pitem .role{font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent)}
+.pitem h3{margin:2px 0 6px;font-size:18px}
+.pitem p{margin:6px 0}
+.pitem .last{border-left:3px solid var(--learn);padding-left:8px;color:var(--muted);font-size:15px}
+.muted{color:var(--muted);font-size:14px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:56px}
+.toggle button{min-width:80px}
+@media (max-width:420px){
+  #tree{column-gap:12px;row-gap:20px}
+  .sec.split{column-gap:12px}
+  .node{padding:24px 8px 8px 9px}
+  .node .nm{font-size:15px}
+  header h1{font-size:15px}
+}
+@media (min-width:640px){ html,body{font-size:18px} .node .nm{font-size:17px} }
+</style>
+</head>
+<body>
+<header>
+  <h1>⛰ Skill Tree</h1>
+  <button class="hbtn primary" id="planBtn">Today's plan</button>
+  <button class="hbtn" id="menuBtn" aria-label="Menu">☰</button>
+</header>
+<div id="banner">Progress can't be saved in this browser. Open the file in Chrome, and use Backup in the ☰ menu to save your progress.</div>
+<div id="nudge"><span id="nudgeTxt"></span><button class="btn" id="nudgeBtn">Back up</button></div>
+<div class="wrap">
+  <div class="progress" id="progress"></div>
+  <div class="legend">
+    <span><i class="dot" style="border-color:var(--done);background:var(--doneBg)"></i><b>Done</b></span>
+    <span><i class="dot" style="border-color:var(--learn);background:var(--learnBg)"></i><b>Learning</b></span>
+    <span><i class="dot" style="border-color:var(--next);background:var(--nextBg)"></i><b>Next up</b></span>
+    <span><i class="dot" style="border-color:var(--lock)"></i><b>Locked</b></span>
+    <span>★ trip goal · ⚑ weak spot · 🎓 lesson</span>
+  </div>
+  <div id="treeWrap"><svg id="lines"></svg><div id="tree"></div></div>
+  <p class="muted" style="margin-top:22px">Hemel levels are a rough guide only. Goofy stance: right foot forward; toeside turns go to your left, heelside to your right.</p>
+</div>
+
+<div id="sheet"><div class="panel" id="detail"></div></div>
+<div id="planSheet"><div class="panel" id="plan"></div></div>
+<div id="menuSheet"><div class="panel" id="menu"></div></div>
+<input type="file" id="fileIn" accept=".json,application/json,text/plain" style="display:none">
+
+<script>
+/*__SKILLS__*/
+</script>
+<script>
+const KEY="sbtree.v1";
+const BRANCH={trunk:"Core riding",carving:"Carving",freeride:"Freeride"};
+const WEAK={speed:"Speed control on steeper pitches",flats:"Getting stuck on flats"};
+const byId={}; SKILLS.forEach(s=>byId[s.id]=s);
+let storageOK=true, S;
+
+function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function fresh(){
+  const st={}; SKILLS.forEach(s=>st[s.id]=s.start||"locked"); st.T1="done";
+  return {v:1,status:st,notes:{},videos:{},achieved:{T1:""},plan:null,sun:false,lastBackup:null,changes:0};
+}
+function load(){
+  try{
+    localStorage.setItem("__t","1"); if(localStorage.getItem("__t")!=="1") throw 0; localStorage.removeItem("__t");
+    const raw=localStorage.getItem(KEY);
+    S=raw?merge(JSON.parse(raw)):fresh();
+  }catch(e){storageOK=false;S=fresh();document.getElementById("banner").classList.add("show")}
+}
+function merge(d){const f=fresh();const o=Object.assign(f,d);o.status=Object.assign(fresh().status,d.status||{});return o}
+function save(change=true){
+  if(change)S.changes=(S.changes||0)+1;
+  if(!storageOK)return;
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){storageOK=false;document.getElementById("banner").classList.add("show")}
+  nudge();
+}
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const st=id=>S.status[id]||"locked";
+const preDone=s=>s.pre.every(p=>st(p)==="done");
+function viewState(s){const x=st(s.id);if(x!=="locked")return x;return preDone(s)?"next":"locked"}
+const LABEL={done:"Done",learning:"Learning",next:"Next up",locked:"Locked"};
+const TAG={lesson:"🎓 Lesson",solo:"Solo",either:"Lesson or solo"};
+
+function chips(s){
+  let h="";
+  if(s.goal)h+='<span class="chip goal">★ Trip</span>';
+  if(s.weak)h+='<span class="chip weak">⚑ Weak</span>';
+  if(s.tag==="lesson")h+='<span class="chip">🎓</span>';
+  return h;
+}
+function renderTree(){
+  const t=document.getElementById("tree"); let h='<div class="sec" style="grid-row:0">Core riding — the trunk</div>';
+  const rows={};
+  SKILLS.forEach(s=>{
+    const vs=viewState(s);
+    const col=s.col==="span"?"1 / -1":(s.col+1);
+    h+=`<button class="node ${vs} ${s.col==="span"?"span":""} ${vs==="locked"?"dim":""}" data-id="${s.id}" style="grid-row:${s.row+1};grid-column:${col}">
+      <span class="st">${LABEL[vs]}</span><span class="nm">${esc(s.name)}</span><span class="meta">${chips(s)}<span>${esc(s.hemel)}</span></span></button>`;
+  });
+  h+='<div class="sec" style="grid-row:11;grid-column:1">Carving</div><div class="sec" style="grid-row:11;grid-column:2">Freeride</div>';
+  t.innerHTML=h;
+  t.querySelector(".sec").style.gridRow="1";
+  t.querySelectorAll(".node").forEach(n=>n.onclick=()=>openSkill(n.dataset.id));
+  renderProgress(); requestAnimationFrame(drawLines);
+}
+function renderProgress(){
+  let h="";
+  for(const b in BRANCH){const all=SKILLS.filter(s=>s.branch===b);const d=all.filter(s=>st(s.id)==="done").length;
+    h+=`<div class="prog"><div class="t">${BRANCH[b]}</div><div class="n">${d}/${all.length}</div><div class="bar"><i style="width:${Math.round(d/all.length*100)}%"></i></div></div>`}
+  document.getElementById("progress").innerHTML=h;
+}
+function drawLines(){
+  const wrap=document.getElementById("treeWrap"),svg=document.getElementById("lines");
+  const W=wrap.getBoundingClientRect(); svg.setAttribute("viewBox",`0 0 ${W.width} ${W.height}`);
+  const cs=getComputedStyle(document.body); let h="";
+  SKILLS.forEach(s=>{
+    const a=wrap.querySelector(`[data-id="${s.id}"]`).getBoundingClientRect();
+    s.pre.filter(p=>s.row-byId[p].row<=2).forEach(p=>{
+      const b=wrap.querySelector(`[data-id="${p}"]`).getBoundingClientRect();
+      const x1=b.left+b.width/2-W.left,y1=b.bottom-W.top,x2=a.left+a.width/2-W.left,y2=a.top-W.top;
+      const done=st(p)==="done";
+      const col=done?cs.getPropertyValue("--done"):cs.getPropertyValue("--line");
+      const my=(y1+y2)/2;
+      h+=`<path d="M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}" fill="none" stroke="${col.trim()}" stroke-width="${done?3:2}" ${done?"":'stroke-dasharray="5 5"'} opacity="${done?0.9:0.8}"/>`;
+    });
+  });
+  svg.innerHTML=h;
+}
+
+let cur=null;
+function openSkill(id){cur=id;renderDetail();document.getElementById("sheet").classList.add("show");document.querySelector("#sheet .panel").scrollTop=0}
+function renderDetail(msg=""){
+  const s=byId[cur],x=st(s.id),notes=S.notes[s.id]||[],vids=S.videos[s.id]||[];
+  const list=a=>"<ul>"+a.map(i=>"<li>"+esc(i)+"</li>").join("")+"</ul>";
+  let h=`<button class="close" data-close>✕</button><h2>${esc(s.name)}</h2>
+  <div class="sub"><span>${BRANCH[s.branch]}</span>·<span>${esc(s.hemel)}</span>·<span>${TAG[s.tag]}</span>${s.goal?'<span class="chip goal">★ Tignes goal</span>':""}${s.weak?`<span class="chip weak">⚑ ${WEAK[s.weak]}</span>`:""}</div>
+  <div class="status">${["locked","learning","done"].map(k=>`<button data-s="${k}" class="${x===k?"on":""}">${k==="locked"?"Locked":k==="learning"?"Learning":"Done ✓"}</button>`).join("")}</div>
+  <div class="noteRow"><textarea id="noteIn" placeholder="Quick note (e.g. what the instructor said)"></textarea></div>
+  <button class="btn wide" id="noteSave">Save note</button><div class="saved" id="savedMsg">${msg}</div>
+  <div class="card test"><h3>Done when</h3>${esc(s.test)}</div>
+  <div class="card"><h3>Drills</h3>${list(s.drills)}</div>
+  <div class="card"><h3>Common mistakes</h3>${list(s.mistakes)}</div>
+  ${s.safety?`<div class="card safety"><h3>Safety</h3>${esc(s.safety)}</div>`:""}
+  <div class="card"><h3>Tignes & Val d'Isère</h3>${esc(s.area)}</div>
+  ${s.pre.length?`<div class="card"><h3>Builds on</h3><div class="pre">${s.pre.map(p=>`<button data-go="${p}">${st(p)==="done"?"✓ ":""}${esc(byId[p].name)}</button>`).join("")}</div></div>`:""}
+  <div class="card"><h3>Date achieved</h3><input type="date" id="achIn" value="${esc(S.achieved[s.id]||"")}"></div>
+  <div class="card"><h3>Notes</h3>${notes.length?`<ul class="log">${notes.map((n,i)=>`<li><button class="del" data-dn="${i}" aria-label="Delete note">✕</button><div class="d">${esc(n.d)}</div>${esc(n.t)}</li>`).slice().reverse().join("")}</ul>`:'<span class="muted">No notes yet.</span>'}</div>
+  <div class="card"><h3>Video links</h3>${vids.length?`<ul class="log">${vids.map((v,i)=>`<li><button class="del" data-dv="${i}" aria-label="Delete link">✕</button><a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a></li>`).join("")}</ul>`:""}
+  <div class="noteRow" style="margin-top:8px"><input type="url" id="vidIn" placeholder="Paste a video link"><button class="btn" id="vidAdd">Add</button></div></div>`;
+  const p=document.getElementById("detail"); p.innerHTML=h;
+  p.querySelector("[data-close]").onclick=closeAll;
+  p.querySelectorAll(".status button").forEach(b=>b.onclick=()=>setStatus(s.id,b.dataset.s));
+  p.querySelector("#noteSave").onclick=()=>{const t=p.querySelector("#noteIn").value.trim();if(!t)return;(S.notes[s.id]=S.notes[s.id]||[]).push({d:today(),t});save();renderDetail("Note saved ✓")};
+  p.querySelector("#achIn").onchange=e=>{S.achieved[s.id]=e.target.value;save()};
+  p.querySelector("#vidAdd").onclick=()=>{const v=p.querySelector("#vidIn").value.trim();if(!v)return;(S.videos[s.id]=S.videos[s.id]||[]).push(v);save();renderDetail("Link added ✓")};
+  p.querySelectorAll("[data-dn]").forEach(b=>b.onclick=()=>{S.notes[s.id].splice(+b.dataset.dn,1);save();renderDetail("Note deleted")});
+  p.querySelectorAll("[data-dv]").forEach(b=>b.onclick=()=>{S.videos[s.id].splice(+b.dataset.dv,1);save();renderDetail("Link deleted")});
+  p.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>openSkill(b.dataset.go));
+}
+function setStatus(id,v){
+  // Keep any typed note: save it together with the status change
+  const ta=document.getElementById("noteIn"); const t=ta&&ta.value.trim();
+  if(t)(S.notes[id]=S.notes[id]||[]).push({d:today(),t});
+  S.status[id]=v;
+  if(v==="done"&&!S.achieved[id])S.achieved[id]=today();
+  save();renderTree();renderDetail(t?"Status + note saved ✓":"Status saved ✓");
+}
+function closeAll(){["sheet","planSheet","menuSheet"].forEach(i=>document.getElementById(i).classList.remove("show"));renderTree()}
+["sheet","planSheet","menuSheet"].forEach(i=>document.getElementById(i).addEventListener("click",e=>{if(e.target.id===i)closeAll()}));
+
+// ───── Session planner ─────
+function reasons(s,type){
+  const r=[]; const x=st(s.id);
+  if(x==="learning")r.push("you're already learning it, so consolidating it pays off fastest");
+  else r.push("everything it builds on is done, so it's next on the tree");
+  if(s.goal)r.push("it's one of your Tignes goals (reds + first carves)");
+  if(s.weak)r.push("it works on a weak spot: "+WEAK[s.weak].toLowerCase());
+  if(type==="lesson"&&s.tag==="lesson")r.push("it's best learned with an instructor, so it suits a lesson day");
+  return r;
+}
+function score(s,type){
+  let v=0; const x=st(s.id);
+  if(x==="learning")v+=50; if(s.goal)v+=30; if(s.weak)v+=20;
+  if(type==="lesson"&&s.tag==="lesson")v+=25;
+  v-=s.row*2; return v;
+}
+function makePlan(type){
+  let c=SKILLS.filter(s=>st(s.id)==="learning"||(st(s.id)==="locked"&&preDone(s)));
+  if(type==="solo")c=c.filter(s=>s.tag!=="lesson");
+  c.sort((a,b)=>score(b,type)-score(a,type));
+  let items=[];
+  if(type==="lesson"){
+    const L=c.find(s=>s.tag!=="solo");
+    if(L)items.push({id:L.id,role:"Lesson focus"});
+    c.filter(s=>s.id!==(L&&L.id)&&s.tag!=="lesson").slice(0,2).forEach(s=>items.push({id:s.id,role:"Afternoon practice"}));
+  }else c.slice(0,3).forEach(s=>items.push({id:s.id,role:"Practice"}));
+  S.plan={date:today(),type,items};save();renderPlan();
+}
+function para(it,type){
+  const s=byId[it.id], r=reasons(s,type), d=s.drills;
+  const why="Picked because "+r.join("; ")+".";
+  let how;
+  if(it.role==="Lesson focus") how=`Ask your instructor to focus the lesson on this. Tell them the target: "${s.test}" Afterwards, practise with: ${d[0].replace(/\.$/,"")}.`;
+  else how=`Warm up with a couple of runs of: ${d[0].replace(/\.$/,"")}. Spend most of the session on ${d[1]?d[1].replace(/\.$/,""):"the same drill"}${d[2]?", then: "+d[2].replace(/\.$/,""):""}. Finish by trying the test: ${s.test}`;
+  return {why,how};
+}
+function renderPlan(){
+  const p=document.getElementById("plan"), pl=S.plan&&S.plan.date===today()?S.plan:null, type=pl?pl.type:(S.lastType||"lesson");
+  let h=`<button class="close" data-close>✕</button><h2>Today's plan</h2><div class="muted">What kind of day is it?</div>
+  <div class="seg"><button data-t="lesson" class="${pl&&pl.type==="lesson"?"on":""}">🎓 Lesson day</button><button data-t="solo" class="${pl&&pl.type==="solo"?"on":""}">Solo day</button></div>`;
+  if(!pl)h+='<p class="muted">Pick a day type to get 2–3 skills to work on today.</p>';
+  else if(!pl.items.length)h+='<p>Nothing to suggest right now. Mark a skill as Learning, or open the tree to choose one.</p>';
+  else pl.items.forEach(it=>{const s=byId[it.id],{why,how}=para(it,pl.type),n=(S.notes[it.id]||[]).slice(-1)[0];
+    h+=`<div class="pitem"><div class="role">${it.role}</div><h3>${esc(s.name)}</h3>
+    <p>${esc(why)}</p><p>${esc(how)}</p>${n?`<p class="last">Your last note (${esc(n.d)}): ${esc(n.t)}</p>`:""}
+    <button class="btn plain wide" data-open="${s.id}">Open skill & log</button></div>`});
+  p.innerHTML=h;
+  p.querySelector("[data-close]").onclick=closeAll;
+  p.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.lastType=b.dataset.t;makePlan(b.dataset.t)});
+  p.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{document.getElementById("planSheet").classList.remove("show");openSkill(b.dataset.open)});
+}
+document.getElementById("planBtn").onclick=()=>{renderPlan();document.getElementById("planSheet").classList.add("show")};
+
+// ───── Menu: sun mode + backup ─────
+function backupText(){return JSON.stringify({app:"snowboard-skill-tree",exported:new Date().toISOString(),data:S})}
+function markBackup(){S.lastBackup=today();S.changes=0;save(false);nudge()}
+function exportFile(){
+  const blob=new Blob([backupText()],{type:"application/json"}),a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download="snowboard-skill-tree-backup-"+today()+".json";document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);markBackup();menuMsg("Backup file downloaded ✓ (check your Downloads)");
+}
+async function copyBackup(){
+  try{await navigator.clipboard.writeText(backupText());markBackup();menuMsg("Backup copied ✓ Paste it into a note or email to yourself.")}
+  catch(e){const ta=document.getElementById("pasteIn");ta.value=backupText();ta.select();menuMsg("Couldn't copy automatically — the backup text is in the box below, copy it from there.")}
+}
+function importText(t){
+  try{const o=JSON.parse(t);const d=o.data||o;if(!d.status)throw 0;S=merge(d);save(false);renderTree();applySun();menuMsg("Backup restored ✓");return true}
+  catch(e){menuMsg("That doesn't look like a valid backup.");return false}
+}
+function menuMsg(t){const m=document.getElementById("menuMsg");if(m)m.textContent=t}
+function renderMenu(){
+  const p=document.getElementById("menu");
+  p.innerHTML=`<button class="close" data-close>✕</button><h2>Settings & backup</h2>
+  <div class="card"><div class="toggle"><span><b>Sun mode</b><br><span class="muted">High-contrast light theme for bright days</span></span><button class="btn" id="sunT">${S.sun?"On":"Off"}</button></div></div>
+  <div class="card"><h3>Backup</h3><p class="muted">Progress is saved on this phone. ${storageOK?"Saving is working ✓":"<b style='color:var(--danger)'>Saving is NOT working in this browser.</b>"} Last backup: ${S.lastBackup||"never"}.</p>
+  <button class="btn wide" id="expB">Download backup file</button><div style="height:8px"></div>
+  <button class="btn plain wide" id="cpB">Copy backup text</button></div>
+  <div class="card"><h3>Restore</h3><button class="btn plain wide" id="impF">Restore from backup file</button>
+  <p class="muted">Or paste backup text:</p><textarea id="pasteIn" placeholder="Paste backup text here"></textarea><div style="height:8px"></div><button class="btn plain wide" id="impT">Restore from pasted text</button></div>
+  <div class="saved" id="menuMsg"></div>
+  <div class="card"><h3>Reset</h3><button class="btn plain wide" id="rst">Reset all progress</button><div id="rstC"></div></div>`;
+  p.querySelector("[data-close]").onclick=closeAll;
+  p.querySelector("#sunT").onclick=()=>{S.sun=!S.sun;save(false);applySun();renderMenu()};
+  p.querySelector("#expB").onclick=exportFile;
+  p.querySelector("#cpB").onclick=copyBackup;
+  p.querySelector("#impF").onclick=()=>document.getElementById("fileIn").click();
+  p.querySelector("#impT").onclick=()=>importText(p.querySelector("#pasteIn").value);
+  p.querySelector("#rst").onclick=()=>{p.querySelector("#rstC").innerHTML='<p>This deletes all statuses, notes and links. Back up first.</p><button class="btn wide" id="rstY" style="border-color:var(--danger);color:var(--danger)">Yes, reset everything</button>';
+    p.querySelector("#rstY").onclick=()=>{S=fresh();save(false);applySun();renderTree();renderMenu();menuMsg("Reset done.")}};
+}
+document.getElementById("fileIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importText(r.result);r.readAsText(f);e.target.value=""};
+document.getElementById("menuBtn").onclick=()=>{renderMenu();document.getElementById("menuSheet").classList.add("show")};
+document.getElementById("nudgeBtn").onclick=()=>{renderMenu();document.getElementById("menuSheet").classList.add("show")};
+function nudge(){
+  const n=document.getElementById("nudge");
+  const days=S.lastBackup?Math.floor((new Date(today())-new Date(S.lastBackup))/864e5):null;
+  const show=S.changes>0&&(days===null?S.changes>=3:days>=3);
+  n.classList.toggle("show",show);
+  document.getElementById("nudgeTxt").textContent=`${S.changes} change${S.changes===1?"":"s"} since your last backup.`;
+}
+function applySun(){document.body.classList.toggle("sun",!!S.sun);requestAnimationFrame(drawLines)}
+
+load();applySun();renderTree();nudge();
+if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
+addEventListener("resize",()=>requestAnimationFrame(drawLines));
+</script>
+</body>
+</html>
