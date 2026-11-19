@@ -14,11 +14,14 @@
   --done:#3dff8f; --learn:#ffd23d; --next:#3ad7ff; --lock:#8b95ab; --accent:#ff5fd2; --danger:#ff6b6b;
   --doneBg:rgba(61,255,143,.14); --learnBg:rgba(255,210,61,.14); --nextBg:rgba(58,215,255,.12);
   --shadow:0 0 14px;
+  --b-trunk:#e8ecf5; --b-carving:#ff9a3c; --b-freeride:#b48cff;
+  --t-carving:rgba(255,154,60,.10); --t-freeride:rgba(180,140,255,.11);
 }
 body.sun{
   --bg:#ffffff; --panel:#f1f3f8; --panel2:#e4e8f2; --text:#000000; --muted:#2b3245; --line:#6b7591;
   --done:#007a3d; --learn:#8a5a00; --next:#0058b3; --lock:#4a5266; --accent:#a1007a; --danger:#b00020;
   --doneBg:#d6f5e3; --learnBg:#fff0c2; --nextBg:#d8e9ff; --shadow:0 0 0;
+  --b-trunk:#222a3a; --b-carving:#b34d00; --b-freeride:#6a3bc4; --t-carving:#fff1e5; --t-freeride:#f1ebff;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.4}
@@ -37,8 +40,9 @@ header h1{font-size:18px;margin:0;flex:1;letter-spacing:.5px;text-transform:uppe
 .legend b{color:var(--text)}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px;border:2px solid}
 .progress{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.prog{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
-.prog .t{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.prog{background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--bc);border-radius:12px;padding:8px 10px;text-align:left;min-height:64px}
+.prog.on{outline:3px solid var(--bc);outline-offset:2px}
+.prog .t{font-size:13px;color:var(--bc);font-weight:800;text-transform:uppercase;letter-spacing:.5px}
 .prog .n{font-size:20px;font-weight:800}
 .bar{height:6px;background:var(--panel2);border-radius:3px;margin-top:4px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--done)}
@@ -65,7 +69,15 @@ header h1{font-size:18px;margin:0;flex:1;letter-spacing:.5px;text-transform:uppe
 .chip.goal{border-color:var(--accent);color:var(--accent)}
 .chip.weak{border-color:var(--danger);color:var(--danger)}
 /* lanes */
-.lanehead{font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);text-align:center;align-self:end;padding-bottom:2px}
+.lanehead{font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--bc,var(--accent));text-align:center;align-self:end;padding-bottom:2px}
+button.lanehead{scroll-margin-top:84px;min-height:44px;background:var(--panel);border:2px solid var(--bc);border-radius:10px;padding:4px 4px}
+button.lanehead.on{background:var(--bc);color:var(--bg)}
+.lanes[data-sec="1"]{background:linear-gradient(to right,var(--t-carving) 0,var(--t-carving) calc(50% - 7px),transparent calc(50% - 7px),transparent calc(50% + 7px),var(--t-freeride) calc(50% + 7px));border-radius:14px;padding:8px 6px 10px;margin:0 -6px}
+.node.c{padding-left:14px!important}
+.node.c::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;border-radius:12px 0 0 12px;background:var(--bc)}
+.b-trunk{--bc:var(--b-trunk)} .b-carving{--bc:var(--b-carving)} .b-freeride{--bc:var(--b-freeride)}
+.highlighting .node{opacity:.25;transition:opacity .15s}
+.highlighting .node.hl{opacity:1;outline:3px solid var(--bc);outline-offset:2px}
 .grid{position:relative;z-index:1;display:grid;column-gap:14px;row-gap:26px}
 .grid.g3{grid-template-columns:repeat(3,1fr)}
 .grid.g2{grid-template-columns:repeat(2,1fr)}
@@ -165,6 +177,7 @@ a{color:var(--next);word-break:break-all}
     <span><i class="dot" style="border-color:var(--learn);background:var(--learnBg)"></i><b>Learning</b></span>
     <span><i class="dot" style="border-color:var(--next);background:var(--nextBg)"></i><b>Next up</b></span>
     <span><i class="dot" style="border-color:var(--lock)"></i><b>Locked</b></span>
+    <span><b style="color:var(--b-trunk)">▌Core</b> <b style="color:var(--b-carving)">▌Carving</b> <b style="color:var(--b-freeride)">▌Freeride</b> (tap a heading to highlight)</span>
     <span>★ trip goal · ⚑ weak spot · 🎓 lesson · tap a skill to see its path</span>
   </div>
   <div id="tree"></div>
@@ -227,7 +240,14 @@ const SECTIONS=[
  {title:"Core riding",root:"T1",lanes:[["Turns",["T3","T8","T17","T11","T12","T16"]],["Speed control",["T2","T7","T13","T9"]],["Terrain & switch",["T4","T5","T6","T14","T10","T15"]]]},
  {title:"Branches",lanes:[["Carving",["C1","C2","C3","C5","C4","C6","C9","C7","C8","C10"]],["Freeride",["F1","F2","F3","F4","F5","F7","F6","F8","F9"]]]}];
 const UNLOCKS={}; SKILLS.forEach(s=>s.pre.forEach(p=>(UNLOCKS[p]=UNLOCKS[p]||[]).push(s.id)));
-let focus=null;
+let focus=null, hl=null;
+function toggleHl(br){
+  if(focus){focus=null;document.getElementById("fbar").classList.remove("show");document.body.classList.remove("hasbar")}
+  hl=hl===br?null:br; renderTree();
+  if(hl){const first=document.querySelector(`#tree .node.b-${hl}${hl==="trunk"?":not(.root)":""}`)||document.querySelector(`#tree .node.b-${hl}`);
+    const head=document.querySelector(`#tree [data-hl="${hl}"]`)||first;
+    head&&head.scrollIntoView({behavior:"smooth",block:"start"});}
+}
 // Place each skill in its lane at the first free row below all its in-section prerequisites
 function layout(sec){
   const lane={},row={},used={};
@@ -252,7 +272,7 @@ function card(s,extra=""){
   const vs=viewState(s),icon={done:"✓",learning:"◆",next:"▶",locked:"🔒"}[vs];
   let ic=`<span class="s">${icon} ${LABEL[vs]}</span>`;
   if(s.goal)ic+='<span style="color:var(--accent)">★</span>'; if(s.weak)ic+='<span style="color:var(--danger)">⚑</span>'; if(s.tag==="lesson")ic+='<span>🎓</span>';
-  return `<button class="node c ${vs} ${extra}" data-id="${s.id}" aria-label="${esc(s.name)}"><span class="nm">${esc(SHORT[s.id]||s.name)}</span><span class="ic">${ic}</span></button>`;
+  return `<button class="node c b-${s.branch} ${vs} ${extra}${hl===s.branch?" hl":""}" data-id="${s.id}" aria-label="${esc(s.name)}"><span class="nm">${esc(SHORT[s.id]||s.name)}</span><span class="ic">${ic}</span></button>`;
 }
 function renderTree(){
   let h="";
@@ -260,14 +280,16 @@ function renderTree(){
     const {lane,row}=layout(sec), n=sec.lanes.length, off=sec.root?2:1;
     h+=`${si?'<div class="secgap"></div>':""}<div class="lanes" data-sec="${si}"><svg></svg><div class="grid g${n}">`;
     if(sec.root)h+=`<div class="lanehead" style="grid-row:1;grid-column:1/-1">${sec.title}</div>`.replace('lanehead"','lanehead" ')+card(byId[sec.root],"root").replace('class="node','style="grid-row:2" class="node');
-    sec.lanes.forEach((L,i)=>h+=`<div class="lanehead" style="grid-row:${sec.root?3:1};grid-column:${i+1}">${L[0]}</div>`);
-    const base=sec.root?3:1;
+    sec.lanes.forEach((L,i)=>{const br=byId[L[1][0]].branch;
+      h+=`<button class="lanehead b-${br} ${hl===br?"on":""}" data-hl="${br}" style="grid-row:${sec.root?3:1};grid-column:${i+1}">${L[0]}</button>`});
+    const base=sec.root?3:2;
     for(const id in row){ if(id===sec.root)continue;
       h+=card(byId[id]).replace('class="node',`style="grid-row:${row[id]+base};grid-column:${lane[id]+1}" class="node`);
     }
     h+="</div></div>";
   });
-  const t=document.getElementById("tree"); t.innerHTML=h; t.classList.toggle("focusing",!!focus);
+  const t=document.getElementById("tree"); t.innerHTML=h; t.classList.toggle("focusing",!!focus); t.classList.toggle("highlighting",!!hl);
+  t.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>toggleHl(b.dataset.hl));
   t.querySelectorAll(".node").forEach(n=>n.onclick=()=>tapNode(n.dataset.id));
   if(focus)markFocus();
   renderProgress(); requestAnimationFrame(drawLines);
@@ -275,8 +297,8 @@ function renderTree(){
 function renderProgress(){
   let h="";
   for(const b in BRANCH){const all=SKILLS.filter(s=>s.branch===b);const d=all.filter(s=>st(s.id)==="done").length;
-    h+=`<div class="prog"><div class="t">${BRANCH[b]}</div><div class="n">${d}/${all.length}</div><div class="bar"><i style="width:${Math.round(d/all.length*100)}%"></i></div></div>`}
-  document.getElementById("progress").innerHTML=h;
+    h+=`<button class="prog b-${b} ${hl===b?"on":""}" data-hl="${b}"><div class="t">${BRANCH[b]}</div><div class="n">${d}/${all.length}</div><div class="bar"><i style="width:${Math.round(d/all.length*100)}%"></i></div></button>`}
+  const P=document.getElementById("progress");P.innerHTML=h;P.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>toggleHl(b.dataset.hl));
 }
 function markFocus(){
   const t=document.getElementById("tree"),s=byId[focus];
@@ -286,6 +308,7 @@ function markFocus(){
   (UNLOCKS[focus]||[]).forEach(p=>q(p)&&q(p).classList.add("f-post"));
 }
 function tapNode(id){
+  if(hl)hl=null;
   if(focus===id){openSkill(id);return}
   focus=id; renderTree(); renderBar();
 }
@@ -475,7 +498,7 @@ load();applySun();renderTree();nudge();
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 addEventListener("resize",()=>requestAnimationFrame(drawLines));
 // In focus mode, tapping anywhere that isn't a skill, the focus bar, a sheet or a button closes focus
-document.addEventListener("click",e=>{if(focus&&!e.target.closest(".node,#fbar,#sheet,#planSheet,#menuSheet,button,a,input,textarea"))clearFocus()});
+document.addEventListener("click",e=>{if(e.target.closest(".node,#fbar,#sheet,#planSheet,#menuSheet,button,a,input,textarea"))return;if(focus)clearFocus();else if(hl){hl=null;renderTree()}});
 </script>
 </body>
 </html>
