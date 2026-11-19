@@ -39,6 +39,20 @@ body.bubblegum{
   --b-trunk:#3a0d2e; --b-carving:#c45500; --b-freeride:#7b3fd1; --t-carving:#fff1e5; --t-freeride:#f3ebff;
   --b-ground:#00775f; --t-ground:#e0f7f1; --b-jumps:#b3261e; --t-jumps:#fde8e7; --b-rails:#7a5520; --t-rails:#f6eddf; --b-pipe:#3a5578; --t-pipe:#e7eef8; --b-backcountry:#4c6b14; --t-backcountry:#eef5e0; --b-cross:#a3156e; --t-cross:#fbe6f3;
 }
+body.paper{
+  --bg:#faf8f4; --panel:#ffffff; --panel2:#f1ede6; --text:#1c1a17; --muted:#5c574f; --line:#d9d3c8;
+  --done:#1f7a45; --learn:#a35f00; --next:#1f5fbf; --lock:#8a847a; --accent:#d9442b; --danger:#b00020;
+  --doneBg:#e9f4ec; --learnBg:#fbf1e1; --nextBg:#e8effa; --shadow:0 0 0;
+  --b-trunk:#1c1a17; --b-carving:#c2571a; --b-freeride:#6b4bb8; --t-carving:#fbf3ec; --t-freeride:#f3effa;
+  --b-ground:#00775f; --t-ground:#eef7f4; --b-jumps:#b3261e; --t-jumps:#fbefee; --b-rails:#7a5520; --t-rails:#f7f1e8; --b-pipe:#3a5578; --t-pipe:#eef2f7; --b-backcountry:#4c6b14; --t-backcountry:#f1f5e9; --b-cross:#a3156e; --t-cross:#faeef5;
+}
+body.slate{
+  --bg:#eef1f4; --panel:#ffffff; --panel2:#e3e8ee; --text:#1f2a36; --muted:#55636f; --line:#c9d2dc;
+  --done:#13795b; --learn:#a05a00; --next:#245fb5; --lock:#7f8b97; --accent:#0f7c86; --danger:#b00020;
+  --doneBg:#e3f3ee; --learnBg:#faefdc; --nextBg:#e4ecf8; --shadow:0 0 0;
+  --b-trunk:#1f2a36; --b-carving:#b95a1e; --b-freeride:#6450b0; --t-carving:#f8efe8; --t-freeride:#efecf8;
+  --b-ground:#00775f; --t-ground:#eef7f4; --b-jumps:#b3261e; --t-jumps:#fbefee; --b-rails:#7a5520; --t-rails:#f7f1e8; --b-pipe:#3a5578; --t-pipe:#eef2f7; --b-backcountry:#4c6b14; --t-backcountry:#f1f5e9; --b-cross:#a3156e; --t-cross:#faeef5;
+}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.4}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -208,6 +222,9 @@ body.bubblegum header{background:#ffd1e8;border-bottom:3px solid #ff8cc6}
 body.bubblegum header h1::after{content:" \1F36C"}
 body.bubblegum .node,body.bubblegum .prog{border-radius:24px}
 body.bubblegum .hbtn{border-radius:999px}
+/* Minimal themes: flat, thinner borders */
+body.paper .node,body.slate .node,body.paper .node .st,body.slate .node .st,body.paper .hbtn,body.slate .hbtn{border-width:1.5px}
+body.paper .prog,body.slate .prog{border-top-width:3px}
 .themes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .themes button{min-height:56px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-weight:800;display:flex;align-items:center;gap:10px;padding:6px 10px;text-align:left}
 .themes button.on{border-color:var(--accent);color:var(--accent);background:var(--panel2)}
@@ -1014,6 +1031,8 @@ const THEMES=[
   {id:"night",name:"Night",bar:"#0b0f1a",sw:"linear-gradient(135deg,#0b0f1a 55%,#ff5fd2 55%)"},
   {id:"bluebird",name:"Bluebird",bar:"#8fd3ff",sw:"linear-gradient(#8fd3ff,#ffffff)"},
   {id:"bubblegum",name:"Bubblegum",bar:"#ffd1e8",sw:"linear-gradient(135deg,#ffd1e8 55%,#d6177f 55%)"},
+  {id:"paper",name:"Paper",bar:"#faf8f4",sw:"linear-gradient(135deg,#faf8f4 55%,#d9442b 55%)"},
+  {id:"slate",name:"Slate",bar:"#eef1f4",sw:"linear-gradient(135deg,#eef1f4 55%,#0f7c86 55%)"},
   {id:"sun",name:"Sun",bar:"#ffffff",sw:"linear-gradient(135deg,#ffffff 55%,#000000 55%)"}];
 function applyTheme(){
   const t=THEMES.find(x=>x.id===S.theme)||THEMES[0];

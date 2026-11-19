@@ -41,7 +41,7 @@ async def main():
         await pg.click("#menuBtn"); await pg.set_input_files("#fileIn",path); await pg.wait_for_timeout(300)
         print("after restore T3:",await pg.evaluate("S.status.T3"),await pg.text_content("#menuMsg"))
         await pg.click("#menuSheet [data-close]")
-        for th in ["sun","bluebird","bubblegum"]:
+        for th in ["sun","bluebird","bubblegum","paper","slate"]:
             await pg.click("#menuBtn"); await pg.click(f"[data-theme={th}]"); await pg.click("#menuSheet [data-close]"); await pg.screenshot(path=f"{OUT}/cover_{th}.png")
         await pg.reload(); print("theme persists:",await pg.evaluate("S.theme"),await pg.evaluate("document.body.className"))
         await pg.evaluate("localStorage.setItem('sbtree.v1',JSON.stringify(Object.assign(JSON.parse(localStorage.getItem('sbtree.v1')),{sun:true,theme:undefined})))"); await pg.reload(); print("old sun save ->",await pg.evaluate("S.theme"))
