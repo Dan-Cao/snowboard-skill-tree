@@ -1,0 +1,47 @@
+import pathlib
+ROOT=pathlib.Path(__file__).resolve().parent.parent
+URL=(ROOT/"index.html").as_uri()
+OUT=str(ROOT/"tests"/"out"); pathlib.Path(OUT).mkdir(exist_ok=True)
+import asyncio, json, sys
+from playwright.async_api import async_playwright
+URL=URL
+async def main():
+  async with async_playwright() as p:
+    b=await p.chromium.launch()
+    for name,w,h in [("cover",390,860),("inner",700,840)]:
+      ctx=await b.new_context(viewport={"width":w,"height":h},device_scale_factor=2,offline=True,accept_downloads=True)
+      pg=await ctx.new_page(); errs=[]
+      pg.on("pageerror",lambda e:errs.append(str(e))); pg.on("console",lambda m: m.type=="error" and errs.append(m.text))
+      await pg.goto(URL); await pg.wait_for_timeout(300)
+      ow=await pg.evaluate("document.documentElement.scrollWidth>innerWidth")
+      small=await pg.evaluate("[...document.querySelectorAll('button')].filter(b=>b.offsetParent&&(b.getBoundingClientRect().height<44)).map(b=>b.textContent.trim().slice(0,20))")
+      await pg.screenshot(path=f"{OUT}/{name}_top.png")
+      await pg.screenshot(path=f"{OUT}/{name}_full.png",full_page=True)
+      print(name,"overflow",ow,"small",small,"errs",errs)
+      if name=="cover":
+        import time; t=time.time()
+        await pg.click('[data-id="T3"]'); await pg.click('[data-id="T3"]'); await pg.fill("#noteIn","Weight forward on heelside"); await pg.click('#sheet .status [data-s="done"]')
+        print("status+note secs (automation)",round(time.time()-t,2), await pg.text_content("#savedMsg"))
+        await pg.screenshot(path=f"{OUT}/cover_detail.png")
+        await pg.click("#sheet [data-close]")
+        await pg.click("#planBtn"); await pg.click('[data-t="solo"]'); await pg.screenshot(path=f"{OUT}/cover_plan_solo.png",full_page=False)
+        print("solo plan:",await pg.evaluate("S.plan.items.map(i=>i.id+':'+byId[i.id].tag)"))
+        await pg.click('[data-t="lesson"]'); await pg.screenshot(path=f"{OUT}/cover_plan_lesson.png")
+        print("lesson plan:",await pg.evaluate("S.plan.items.map(i=>i.role+':'+i.id)"))
+        await pg.click("#planSheet [data-close]")
+        # persistence
+        await pg.reload(); print("persist T3:",await pg.evaluate("S.status.T3"), await pg.evaluate("S.notes.T3"))
+        # export
+        await pg.click("#menuBtn")
+        async with pg.expect_download() as d: await pg.click("#expB")
+        dl=await d.value; path=f"{OUT}/backup.json"; await dl.save_as(path)
+        # wipe & restore
+        await pg.evaluate("localStorage.clear()"); await pg.reload()
+        print("after wipe T3:",await pg.evaluate("S.status.T3"))
+        await pg.click("#menuBtn"); await pg.set_input_files("#fileIn",path); await pg.wait_for_timeout(300)
+        print("after restore T3:",await pg.evaluate("S.status.T3"),await pg.text_content("#menuMsg"))
+        await pg.click("#sunT"); await pg.click("#menuSheet [data-close]"); await pg.screenshot(path=f"{OUT}/cover_sun.png")
+        print("errs",errs)
+      await ctx.close()
+    await b.close()
+asyncio.run(main())
