@@ -152,6 +152,7 @@ button.on .sw::after{left:29px;background:var(--bg)}
 #fbar{position:fixed;left:0;right:0;bottom:0;z-index:15;display:none;background:var(--bg);border-top:3px solid var(--text);padding:10px 12px 14px;max-width:760px;margin:0 auto}
 #fbar.show{display:block}
 #fbar .t{font-weight:800;font-size:17px;margin-right:52px}
+#fbar .d{margin:3px 52px 4px 0;font-size:14.5px;line-height:1.35}
 #fbar .k{margin-right:64px;font-size:13px;color:var(--muted);margin:2px 0 8px}
 #fbar .k b{color:var(--accent)} #fbar .k i{color:var(--next);font-style:normal;font-weight:700}
 #fbar .row{display:grid;grid-template-columns:1fr 1fr 1fr 1.2fr;gap:6px}
@@ -161,7 +162,7 @@ button.on .sw::after{left:29px;background:var(--bg)}
 #fbar .row button.on[data-s=locked]{border-color:var(--lock);background:var(--panel2)}
 #fbar .row button.det{border-color:var(--accent);color:var(--accent)}
 #fbar .close{top:8px}
-body.hasbar .wrap{padding-bottom:170px}
+body.hasbar .wrap{padding-bottom:calc(var(--barH,190px) + 16px)}
 /* sheet */
 #sheet,#planSheet,#menuSheet,#brSheet{position:fixed;inset:0;z-index:20;display:none;background:rgba(0,0,0,.55)}
 #sheet.show,#planSheet.show,#menuSheet.show,#brSheet.show{display:block}
@@ -169,6 +170,7 @@ body.hasbar .wrap{padding-bottom:170px}
 .panel h2{margin:0 52px 4px 0;font-size:21px;line-height:1.2}
 .close{position:absolute;top:10px;right:10px;width:48px;height:48px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-size:22px;font-weight:800}
 .sub{color:var(--muted);font-size:14px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:6px}
+.desc{margin:0 0 12px;font-size:16px}
 .status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
 .status button{min-height:58px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-weight:800;font-size:16px}
 .status button.on[data-s=locked]{border-color:var(--lock);background:var(--panel2)}
@@ -401,10 +403,10 @@ function clearFocus(){focus=null;document.getElementById("fbar").classList.remov
 function renderBar(){
   const s=byId[focus],x=st(s.id),b=document.getElementById("fbar");
   const nm=a=>a.map(i=>esc(sn(i))+(shown(byId[i])?"":" (hidden)")).join(", ")||"—";
-  b.innerHTML=`<button class="close" id="fx" aria-label="Clear focus">✕</button><div class="t">${esc(s.name)}</div>
+  b.innerHTML=`<button class="close" id="fx" aria-label="Clear focus">✕</button><div class="t">${esc(s.name)}</div>${s.desc?`<div class="d">${esc(s.desc)}</div>`:""}
   <div class="k"><b>Needs:</b> ${nm(s.pre)} · <i>Unlocks:</i> ${nm(UNLOCKS[s.id]||[])}</div>
   <div class="row">${["locked","learning","done"].map(k=>`<button data-s="${k}" class="${x===k?"on":""}">${k==="locked"?"Locked":k==="learning"?"Learning":"Done ✓"}</button>`).join("")}<button class="det" id="fdet">Details</button></div>`;
-  b.classList.add("show");document.body.classList.add("hasbar");
+  b.classList.add("show");document.body.classList.add("hasbar");document.body.style.setProperty("--barH",b.offsetHeight+"px");
   b.querySelector("#fx").onclick=clearFocus;
   b.querySelector("#fdet").onclick=()=>openSkill(focus);
   b.querySelectorAll("[data-s]").forEach(k=>k.onclick=()=>{S.status[focus]=k.dataset.s;if(k.dataset.s==="done"&&!S.achieved[focus])S.achieved[focus]=today();save();renderTree();renderBar()});
@@ -442,6 +444,7 @@ function renderDetail(msg=""){
   const list=a=>"<ul>"+a.map(i=>"<li>"+esc(i)+"</li>").join("")+"</ul>";
   let h=`<button class="close" data-close>✕</button><h2>${esc(s.name)}</h2>
   <div class="sub"><span>${BRANCH[s.branch]}</span>·<span>${TAG[s.tag]}</span>${s.goal?'<span class="chip goal">★ Tignes goal</span>':""}${s.weak?`<span class="chip weak">⚑ ${WEAK[s.weak]}</span>`:""}</div>
+  ${s.desc?`<p class="desc">${esc(s.desc)}</p>`:""}
   <div class="status">${["locked","learning","done"].map(k=>`<button data-s="${k}" class="${x===k?"on":""}">${k==="locked"?"Locked":k==="learning"?"Learning":"Done ✓"}</button>`).join("")}</div>
   <div class="noteRow"><textarea id="noteIn" placeholder="Quick note (e.g. what the instructor said)"></textarea></div>
   <button class="btn wide" id="noteSave">Save note</button><div class="saved" id="savedMsg">${msg}</div>

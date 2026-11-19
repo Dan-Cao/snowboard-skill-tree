@@ -20,6 +20,7 @@ The main job is to **plan what to practise next**. Tracking progress comes secon
 - **Teaching standard:** order and terminology follow how **BASI** (British Association of Snowsports Instructors) teaches: basic → skidded → carved/dynamic turns, with edge, pivot and pressure language (e.g. "progressive edging"). BASI's Central Theme manual isn't public, so reviews have checked against general BASI practice.
 - **No Hemel level tags.** Skills used to carry a loose "≈ Hemel 6" / "Beyond Hemel" tag. Removed in Nov 2026 because Dan has worked through the Hemel levels, so they no longer help.
 - **Every skill has:**
+  - `desc`: one plain line (about 110 characters max) saying what the skill is. No left/right in it.
   - `test`: a measurable done-when test, using a rep count and/or a terrain grade or feature size (e.g. "10 linked turns on a red", "small kicker, table up to 4 m"). Avoid vague tests like "feels good" or "the steepest blue you know".
   - `drills`
   - `mistakes`
@@ -60,6 +61,7 @@ The main job is to **plan what to practise next**. Tracking progress comes secon
 - **Layout:** straight lanes plus **focus mode**.
   - The always-on lines only join adjacent skills within a lane.
   - Tapping a skill highlights what it needs (pink) and what it unlocks (blue), and opens a bottom bar with status buttons.
+  - The bar also shows the skill's one-line `desc`, so Dan can tell at a glance what it is and whether he's done it. The same line sits at the top of the details sheet.
   - Tapping the same skill again opens its details. Tapping any blank area closes focus.
   - Dotted lines across the whole tree were rejected as unclear.
 - **Branch identity:** each branch has a colour stripe on its cards and a tinted lane. Tapping a lane heading or a progress tile highlights that branch.
