@@ -16,12 +16,14 @@
   --shadow:0 0 14px;
   --b-trunk:#e8ecf5; --b-carving:#ff9a3c; --b-freeride:#b48cff;
   --t-carving:rgba(255,154,60,.10); --t-freeride:rgba(180,140,255,.11);
+  --b-ground:#33d6b0; --t-ground:rgba(51,214,176,.10); --b-jumps:#ff7a7a; --t-jumps:rgba(255,122,122,.10); --b-rails:#d9b382; --t-rails:rgba(217,179,130,.11); --b-pipe:#9fb6d6; --t-pipe:rgba(159,182,214,.12); --b-backcountry:#a9c96b; --t-backcountry:rgba(169,201,107,.11); --b-cross:#ff8fd0; --t-cross:rgba(255,143,208,.10);
 }
 body.sun{
   --bg:#ffffff; --panel:#f1f3f8; --panel2:#e4e8f2; --text:#000000; --muted:#2b3245; --line:#6b7591;
   --done:#007a3d; --learn:#8a5a00; --next:#0058b3; --lock:#4a5266; --accent:#a1007a; --danger:#b00020;
   --doneBg:#d6f5e3; --learnBg:#fff0c2; --nextBg:#d8e9ff; --shadow:0 0 0;
   --b-trunk:#222a3a; --b-carving:#b34d00; --b-freeride:#6a3bc4; --t-carving:#fff1e5; --t-freeride:#f1ebff;
+  --b-ground:#00775f; --t-ground:#e0f7f1; --b-jumps:#b3261e; --t-jumps:#fde8e7; --b-rails:#7a5520; --t-rails:#f6eddf; --b-pipe:#3a5578; --t-pipe:#e7eef8; --b-backcountry:#4c6b14; --t-backcountry:#eef5e0; --b-cross:#a3156e; --t-cross:#fbe6f3;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.4}
@@ -39,7 +41,7 @@ header h1{font-size:18px;margin:0;flex:1;letter-spacing:.5px;text-transform:uppe
 .legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14px;color:var(--muted);margin:4px 0 10px}
 .legend b{color:var(--text)}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px;border:2px solid}
-.progress{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.progress{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px;margin-bottom:12px}
 .prog{background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--bc);border-radius:12px;padding:8px 10px;text-align:left;min-height:64px}
 .prog.on{outline:3px solid var(--bc);outline-offset:2px}
 .prog .t{font-size:13px;color:var(--bc);font-weight:800;text-transform:uppercase;letter-spacing:.5px}
@@ -72,10 +74,19 @@ header h1{font-size:18px;margin:0;flex:1;letter-spacing:.5px;text-transform:uppe
 .lanehead{font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--bc,var(--accent));text-align:center;align-self:end;padding-bottom:2px}
 button.lanehead{scroll-margin-top:84px;min-height:44px;background:var(--panel);border:2px solid var(--bc);border-radius:10px;padding:4px 4px}
 button.lanehead.on{background:var(--bc);color:var(--bg)}
-.lanes[data-sec="1"]{background:linear-gradient(to right,var(--t-carving) 0,var(--t-carving) calc(50% - 7px),transparent calc(50% - 7px),transparent calc(50% + 7px),var(--t-freeride) calc(50% + 7px));border-radius:14px;padding:8px 6px 10px;margin:0 -6px}
+.lanes.br{background:linear-gradient(to right,var(--tl) 0,var(--tl) calc(50% - 7px),transparent calc(50% - 7px),transparent calc(50% + 7px),var(--tr) calc(50% + 7px));border-radius:14px;padding:8px 6px 10px;margin:0 -6px}
+.lanes.br.one{background:var(--tl)}
+.grid.g1{grid-template-columns:1fr}
+.grid.g1 .node{justify-self:center;width:min(100%,340px)}
+.brrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:-2px 0 12px;font-size:14px;color:var(--muted)}
+.brrow button{min-height:44px;padding:0 14px;border-radius:12px;border:2px solid var(--accent);background:var(--panel);color:var(--accent);font-weight:800}
+.brtog{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.brtog button{min-height:52px;border-radius:12px;border:2px solid var(--line);border-left:7px solid var(--bc);background:var(--panel);font-weight:800;text-align:left;padding:0 10px}
+.brtog button.on{background:var(--panel2);border-color:var(--bc)}
+.brtog button .x{float:right}
 .node.c{padding-left:14px!important}
 .node.c::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;border-radius:12px 0 0 12px;background:var(--bc)}
-.b-trunk{--bc:var(--b-trunk)} .b-carving{--bc:var(--b-carving)} .b-freeride{--bc:var(--b-freeride)}
+.b-trunk{--bc:var(--b-trunk)} .b-carving{--bc:var(--b-carving)} .b-freeride{--bc:var(--b-freeride)} .b-ground{--bc:var(--b-ground)} .b-jumps{--bc:var(--b-jumps)} .b-rails{--bc:var(--b-rails)} .b-pipe{--bc:var(--b-pipe)} .b-backcountry{--bc:var(--b-backcountry)} .b-cross{--bc:var(--b-cross)}
 .highlighting .node{opacity:.25;transition:opacity .15s}
 .highlighting .node.hl{opacity:1;outline:3px solid var(--bc);outline-offset:2px}
 .grid{position:relative;z-index:1;display:grid;column-gap:14px;row-gap:26px}
@@ -110,8 +121,8 @@ button.lanehead.on{background:var(--bc);color:var(--bg)}
 #fbar .close{top:8px}
 body.hasbar .wrap{padding-bottom:170px}
 /* sheet */
-#sheet,#planSheet,#menuSheet{position:fixed;inset:0;z-index:20;display:none;background:rgba(0,0,0,.55)}
-#sheet.show,#planSheet.show,#menuSheet.show{display:block}
+#sheet,#planSheet,#menuSheet,#brSheet{position:fixed;inset:0;z-index:20;display:none;background:rgba(0,0,0,.55)}
+#sheet.show,#planSheet.show,#menuSheet.show,#brSheet.show{display:block}
 .panel{position:absolute;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:var(--bg);border-top:3px solid var(--accent);border-radius:18px 18px 0 0;padding:14px 14px 28px;max-width:760px;margin:0 auto}
 .panel h2{margin:0 52px 4px 0;font-size:21px;line-height:1.2}
 .close{position:absolute;top:10px;right:10px;width:48px;height:48px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-size:22px;font-weight:800}
@@ -172,12 +183,13 @@ a{color:var(--next);word-break:break-all}
 <div id="nudge"><span id="nudgeTxt"></span><button class="btn" id="nudgeBtn">Back up</button></div>
 <div class="wrap">
   <div class="progress" id="progress"></div>
+  <div class="brrow" id="brrow"></div>
   <div class="legend">
     <span><i class="dot" style="border-color:var(--done);background:var(--doneBg)"></i><b>Done</b></span>
     <span><i class="dot" style="border-color:var(--learn);background:var(--learnBg)"></i><b>Learning</b></span>
     <span><i class="dot" style="border-color:var(--next);background:var(--nextBg)"></i><b>Next up</b></span>
     <span><i class="dot" style="border-color:var(--lock)"></i><b>Locked</b></span>
-    <span><b style="color:var(--b-trunk)">▌Core</b> <b style="color:var(--b-carving)">▌Carving</b> <b style="color:var(--b-freeride)">▌Freeride</b> (tap a heading to highlight)</span>
+    <span id="brlegend"></span>
     <span>★ trip goal · ⚑ weak spot · 🎓 lesson · tap a skill to see its path</span>
   </div>
   <div id="tree"></div>
@@ -188,6 +200,7 @@ a{color:var(--next);word-break:break-all}
 <div id="sheet"><div class="panel" id="detail"></div></div>
 <div id="planSheet"><div class="panel" id="plan"></div></div>
 <div id="menuSheet"><div class="panel" id="menu"></div></div>
+<div id="brSheet"><div class="panel" id="brpanel"></div></div>
 <input type="file" id="fileIn" accept=".json,application/json,text/plain" style="display:none">
 
 <script>
@@ -195,7 +208,12 @@ a{color:var(--next);word-break:break-all}
 </script>
 <script>
 const KEY="sbtree.v1";
-const BRANCH={trunk:"Core riding",carving:"Carving",freeride:"Freeride"};
+const BRANCH={trunk:"Core riding",carving:"Carving",freeride:"Freeride",ground:"Ground tricks",jumps:"Jumps",rails:"Rails & boxes",pipe:"Halfpipe",backcountry:"Backcountry",cross:"Boardercross"};
+const OPTIONAL=Object.keys(BRANCH).filter(b=>b!=="trunk");
+const DEFAULT_ON={carving:true,freeride:true};
+const sn=id=>(typeof SHORT!=="undefined"&&SHORT[id])||byId[id].name;
+const isOn=b=>b==="trunk"||!!(S.branches||{})[b];
+const shown=s=>isOn(s.branch);
 const WEAK={speed:"Speed control on steeper pitches",flats:"Getting stuck on flats"};
 const byId={}; SKILLS.forEach(s=>byId[s.id]=s);
 let storageOK=true, S;
@@ -203,7 +221,7 @@ let storageOK=true, S;
 function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function fresh(){
   const st={}; SKILLS.forEach(s=>st[s.id]=s.start||"locked"); st.T1="done";
-  return {v:1,status:st,notes:{},videos:{},achieved:{T1:""},plan:null,sun:false,lastBackup:null,changes:0};
+  return {v:1,status:st,notes:{},videos:{},achieved:{T1:""},plan:null,sun:false,lastBackup:null,changes:0,branches:Object.assign({},DEFAULT_ON)};
 }
 function load(){
   try{
@@ -212,7 +230,7 @@ function load(){
     S=raw?merge(JSON.parse(raw)):fresh();
   }catch(e){storageOK=false;S=fresh();document.getElementById("banner").classList.add("show")}
 }
-function merge(d){const f=fresh();const o=Object.assign(f,d);o.status=Object.assign(fresh().status,d.status||{});return o}
+function merge(d){const f=fresh();const o=Object.assign(f,d);o.status=Object.assign(fresh().status,d.status||{});o.branches=Object.assign({},DEFAULT_ON,d.branches||{});return o}
 function save(change=true){
   if(change)S.changes=(S.changes||0)+1;
   if(!storageOK)return;
@@ -236,9 +254,14 @@ function chips(s){
 const SHORT={T1:"Skidded turns · blue",T2:"Turn shape",T3:"Grippy turns · blue",T4:"Flat-base glide",T5:"Skating",T6:"Cat tracks",T7:"Short turns",T8:"Steeper blues",T9:"Hardpack & ice",T10:"Switch turns",T11:"Skidded turns · red",T12:"Grippy turns · red",T13:"Hockey stops",T14:"Rollers & chop",T15:"Switch · red",T16:"Groomed blacks",T17:"Sideslip · red",
  C1:"Railroad tracks",C2:"First linked carves",C3:"Carving · blue",C4:"Carving · red",C5:"Edge angles",C6:"Dynamic turns",C7:"Turn radius",C8:"Switch carving",C9:"Carving at speed",C10:"Euro carves",
  F1:"Piste-edge soft snow",F2:"Small moguls",F3:"Powder",F4:"Tracked snow",F5:"Trees",F6:"Steep off-piste",F7:"Small drops",F8:"Chutes",F9:"Big-mountain lines"};
-const SECTIONS=[
- {title:"Core riding",root:"T1",lanes:[["Turns",["T3","T8","T17","T11","T12","T16"]],["Speed control",["T2","T7","T13","T9"]],["Terrain & switch",["T4","T5","T6","T14","T10","T15"]]]},
- {title:"Branches",lanes:[["Carving",["C1","C2","C3","C5","C4","C6","C9","C7","C8","C10"]],["Freeride",["F1","F2","F3","F4","F5","F7","F6","F8","F9"]]]}];
+const TRUNK_SECTION={title:"Core riding",root:"T1",lanes:[["Turns",["T3","T8","T17","T11","T12","T16"]],["Speed control",["T2","T7","T13","T9"]],["Terrain & switch",["T4","T5","T6","T14","T10","T15"]]]};
+function sections(){
+  const act=OPTIONAL.filter(isOn), out=[TRUNK_SECTION];
+  for(let i=0;i<act.length;i+=2){
+    out.push({lanes:act.slice(i,i+2).map(b=>[BRANCH[b],SKILLS.filter(s=>s.branch===b).map(s=>s.id)]),branches:act.slice(i,i+2)});
+  }
+  return out;
+}
 const UNLOCKS={}; SKILLS.forEach(s=>s.pre.forEach(p=>(UNLOCKS[p]=UNLOCKS[p]||[]).push(s.id)));
 let focus=null, hl=null;
 function toggleHl(br){
@@ -272,13 +295,14 @@ function card(s,extra=""){
   const vs=viewState(s),icon={done:"✓",learning:"◆",next:"▶",locked:"🔒"}[vs];
   let ic=`<span class="s">${icon} ${LABEL[vs]}</span>`;
   if(s.goal)ic+='<span style="color:var(--accent)">★</span>'; if(s.weak)ic+='<span style="color:var(--danger)">⚑</span>'; if(s.tag==="lesson")ic+='<span>🎓</span>';
-  return `<button class="node c b-${s.branch} ${vs} ${extra}${hl===s.branch?" hl":""}" data-id="${s.id}" aria-label="${esc(s.name)}"><span class="nm">${esc(SHORT[s.id]||s.name)}</span><span class="ic">${ic}</span></button>`;
+  return `<button class="node c b-${s.branch} ${vs} ${extra}${hl===s.branch?" hl":""}" data-id="${s.id}" aria-label="${esc(s.name)}"><span class="nm">${esc(sn(s.id))}</span><span class="ic">${ic}</span></button>`;
 }
 function renderTree(){
   let h="";
-  SECTIONS.forEach((sec,si)=>{
+  sections().forEach((sec,si)=>{
     const {lane,row}=layout(sec), n=sec.lanes.length, off=sec.root?2:1;
-    h+=`${si?'<div class="secgap"></div>':""}<div class="lanes" data-sec="${si}"><svg></svg><div class="grid g${n}">`;
+    const brs=sec.branches||[];
+    h+=`${si?'<div class="secgap"></div>':""}<div class="lanes ${brs.length?"br":""} ${brs.length===1?"one":""}" data-sec="${si}" style="${brs.length?`--tl:var(--t-${brs[0]});--tr:var(--t-${brs[1]||brs[0]})`:""}"><svg></svg><div class="grid g${n}">`;
     if(sec.root)h+=`<div class="lanehead" style="grid-row:1;grid-column:1/-1">${sec.title}</div>`.replace('lanehead"','lanehead" ')+card(byId[sec.root],"root").replace('class="node','style="grid-row:2" class="node');
     sec.lanes.forEach((L,i)=>{const br=byId[L[1][0]].branch;
       h+=`<button class="lanehead b-${br} ${hl===br?"on":""}" data-hl="${br}" style="grid-row:${sec.root?3:1};grid-column:${i+1}">${L[0]}</button>`});
@@ -296,9 +320,13 @@ function renderTree(){
 }
 function renderProgress(){
   let h="";
-  for(const b in BRANCH){const all=SKILLS.filter(s=>s.branch===b);const d=all.filter(s=>st(s.id)==="done").length;
+  for(const b in BRANCH){if(!isOn(b))continue;const all=SKILLS.filter(s=>s.branch===b);const d=all.filter(s=>st(s.id)==="done").length;
     h+=`<button class="prog b-${b} ${hl===b?"on":""}" data-hl="${b}"><div class="t">${BRANCH[b]}</div><div class="n">${d}/${all.length}</div><div class="bar"><i style="width:${Math.round(d/all.length*100)}%"></i></div></button>`}
-  const P=document.getElementById("progress");P.innerHTML=h;P.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>toggleHl(b.dataset.hl));
+  const P=document.getElementById("progress");P.innerHTML=h;
+  const act=OPTIONAL.filter(isOn);
+  document.getElementById("brrow").innerHTML=`<span>Showing: ${act.length?act.map(b=>BRANCH[b]).join(", "):"core riding only"}</span><button id="brEdit">Choose branches</button>`;
+  document.getElementById("brEdit").onclick=openBranches;
+  document.getElementById("brlegend").innerHTML=["trunk",...act].map(b=>`<b style="color:var(--b-${b})">▌${b==="trunk"?"Core":BRANCH[b]}</b>`).join(" ")+" (tap a heading to highlight)";P.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>toggleHl(b.dataset.hl));
 }
 function markFocus(){
   const t=document.getElementById("tree"),s=byId[focus];
@@ -315,7 +343,7 @@ function tapNode(id){
 function clearFocus(){focus=null;document.getElementById("fbar").classList.remove("show");document.body.classList.remove("hasbar");renderTree()}
 function renderBar(){
   const s=byId[focus],x=st(s.id),b=document.getElementById("fbar");
-  const nm=a=>a.map(i=>esc(SHORT[i])).join(", ")||"—";
+  const nm=a=>a.map(i=>esc(sn(i))+(shown(byId[i])?"":" (hidden)")).join(", ")||"—";
   b.innerHTML=`<button class="close" id="fx" aria-label="Clear focus">✕</button><div class="t">${esc(s.name)}</div>
   <div class="k"><b>Needs:</b> ${nm(s.pre)} · <i>Unlocks:</i> ${nm(UNLOCKS[s.id]||[])}</div>
   <div class="row">${["locked","learning","done"].map(k=>`<button data-s="${k}" class="${x===k?"on":""}">${k==="locked"?"Locked":k==="learning"?"Learning":"Done ✓"}</button>`).join("")}<button class="det" id="fdet">Details</button></div>`;
@@ -365,8 +393,8 @@ function renderDetail(msg=""){
   <div class="card"><h3>Common mistakes</h3>${list(s.mistakes)}</div>
   ${s.safety?`<div class="card safety"><h3>Safety</h3>${esc(s.safety)}</div>`:""}
   <div class="card"><h3>Tignes & Val d'Isère</h3>${esc(s.area)}</div>
-  ${s.pre.length?`<div class="card"><h3>Needs</h3><div class="pre">${s.pre.map(p=>`<button data-go="${p}">${st(p)==="done"?"✓ ":""}${esc(SHORT[p])}</button>`).join("")}</div></div>`:""}
-  ${(UNLOCKS[s.id]||[]).length?`<div class="card"><h3>Unlocks</h3><div class="pre">${UNLOCKS[s.id].map(p=>`<button data-go="${p}">${esc(SHORT[p])}</button>`).join("")}</div></div>`:""}
+  ${s.pre.length?`<div class="card"><h3>Needs</h3><div class="pre">${s.pre.map(p=>`<button data-go="${p}">${st(p)==="done"?"✓ ":""}${esc(sn(p))}${shown(byId[p])?"":" (hidden)"}</button>`).join("")}</div></div>`:""}
+  ${(UNLOCKS[s.id]||[]).length?`<div class="card"><h3>Unlocks</h3><div class="pre">${UNLOCKS[s.id].map(p=>`<button data-go="${p}">${esc(sn(p))}${shown(byId[p])?"":" (hidden)"}</button>`).join("")}</div></div>`:""}
   <div class="card"><h3>Date achieved</h3><input type="date" id="achIn" value="${esc(S.achieved[s.id]||"")}"></div>
   <div class="card"><h3>Notes</h3>${notes.length?`<ul class="log">${notes.map((n,i)=>`<li><button class="del" data-dn="${i}" aria-label="Delete note">✕</button><div class="d">${esc(n.d)}</div>${esc(n.t)}</li>`).slice().reverse().join("")}</ul>`:'<span class="muted">No notes yet.</span>'}</div>
   <div class="card"><h3>Video links</h3>${vids.length?`<ul class="log">${vids.map((v,i)=>`<li><button class="del" data-dv="${i}" aria-label="Delete link">✕</button><a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a></li>`).join("")}</ul>`:""}
@@ -389,8 +417,8 @@ function setStatus(id,v){
   if(v==="done"&&!S.achieved[id])S.achieved[id]=today();
   save();renderTree();renderDetail(t?"Status + note saved ✓":"Status saved ✓");
 }
-function closeAll(){["sheet","planSheet","menuSheet"].forEach(i=>document.getElementById(i).classList.remove("show"));renderTree();if(focus)renderBar()}
-["sheet","planSheet","menuSheet"].forEach(i=>document.getElementById(i).addEventListener("click",e=>{if(e.target.id===i)closeAll()}));
+function closeAll(){["sheet","planSheet","menuSheet","brSheet"].forEach(i=>document.getElementById(i).classList.remove("show"));renderTree();if(focus)renderBar()}
+["sheet","planSheet","menuSheet","brSheet"].forEach(i=>document.getElementById(i).addEventListener("click",e=>{if(e.target.id===i)closeAll()}));
 
 // ───── Session planner ─────
 function reasons(s,type){
@@ -409,7 +437,7 @@ function score(s,type){
   v-=s.row*2; return v;
 }
 function makePlan(type){
-  let c=SKILLS.filter(s=>st(s.id)==="learning"||(st(s.id)==="locked"&&preDone(s)));
+  let c=SKILLS.filter(s=>shown(s)).filter(s=>st(s.id)==="learning"||(st(s.id)==="locked"&&preDone(s)));
   if(type==="solo")c=c.filter(s=>s.tag!=="lesson");
   c.sort((a,b)=>score(b,type)-score(a,type));
   let items=[];
@@ -462,9 +490,20 @@ function importText(t){
   catch(e){menuMsg("That doesn't look like a valid backup.");return false}
 }
 function menuMsg(t){const m=document.getElementById("menuMsg");if(m)m.textContent=t}
+function openBranches(){renderBranches();document.getElementById("brSheet").classList.add("show")}
+function renderBranches(){
+  const p=document.getElementById("brpanel");
+  p.innerHTML=`<button class="close" data-close>✕</button><h2>Choose branches</h2>
+  <p class="muted">Core riding is always shown. Hidden branches keep your progress — they're just out of the way, and left out of Today's plan.</p>
+  <div class="brtog">${OPTIONAL.map(b=>{const all=SKILLS.filter(s=>s.branch===b),d=all.filter(s=>st(s.id)==="done").length;
+    return `<button class="b-${b} ${isOn(b)?"on":""}" data-b="${b}">${BRANCH[b]}<span class="x">${isOn(b)?"✓":"＋"}</span><br><span class="muted">${d}/${all.length} done</span></button>`}).join("")}</div>`;
+  p.querySelector("[data-close]").onclick=closeAll;
+  p.querySelectorAll("[data-b]").forEach(x=>x.onclick=()=>{S.branches[x.dataset.b]=!isOn(x.dataset.b);if(hl&&!isOn(hl))hl=null;if(focus&&!shown(byId[focus])){focus=null;document.getElementById("fbar").classList.remove("show");document.body.classList.remove("hasbar")}save(false);renderBranches();renderTree()});
+}
 function renderMenu(){
   const p=document.getElementById("menu");
   p.innerHTML=`<button class="close" data-close>✕</button><h2>Settings & backup</h2>
+  <div class="card"><div class="toggle"><span><b>Branches</b><br><span class="muted">Show or hide tricks, park, backcountry and more</span></span><button class="btn" id="brM">Choose</button></div></div>
   <div class="card"><div class="toggle"><span><b>Sun mode</b><br><span class="muted">High-contrast light theme for bright days</span></span><button class="btn" id="sunT">${S.sun?"On":"Off"}</button></div></div>
   <div class="card"><h3>Backup</h3><p class="muted">Progress is saved on this phone. ${storageOK?"Saving is working ✓":"<b style='color:var(--danger)'>Saving is NOT working in this browser.</b>"} Last backup: ${S.lastBackup||"never"}.</p>
   <button class="btn wide" id="expB">Download backup file</button><div style="height:8px"></div>
@@ -474,6 +513,7 @@ function renderMenu(){
   <div class="saved" id="menuMsg"></div>
   <div class="card"><h3>Reset</h3><button class="btn plain wide" id="rst">Reset all progress</button><div id="rstC"></div></div>`;
   p.querySelector("[data-close]").onclick=closeAll;
+  p.querySelector("#brM").onclick=()=>{document.getElementById("menuSheet").classList.remove("show");openBranches()};
   p.querySelector("#sunT").onclick=()=>{S.sun=!S.sun;save(false);applySun();renderMenu()};
   p.querySelector("#expB").onclick=exportFile;
   p.querySelector("#cpB").onclick=copyBackup;
@@ -498,7 +538,7 @@ load();applySun();renderTree();nudge();
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 addEventListener("resize",()=>requestAnimationFrame(drawLines));
 // In focus mode, tapping anywhere that isn't a skill, the focus bar, a sheet or a button closes focus
-document.addEventListener("click",e=>{if(e.target.closest(".node,#fbar,#sheet,#planSheet,#menuSheet,button,a,input,textarea"))return;if(focus)clearFocus();else if(hl){hl=null;renderTree()}});
+document.addEventListener("click",e=>{if(e.target.closest(".node,#fbar,#sheet,#planSheet,#menuSheet,#brSheet,button,a,input,textarea"))return;if(focus)clearFocus();else if(hl){hl=null;renderTree()}});
 </script>
 </body>
 </html>

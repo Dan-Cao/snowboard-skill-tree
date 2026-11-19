@@ -16,12 +16,14 @@
   --shadow:0 0 14px;
   --b-trunk:#e8ecf5; --b-carving:#ff9a3c; --b-freeride:#b48cff;
   --t-carving:rgba(255,154,60,.10); --t-freeride:rgba(180,140,255,.11);
+  --b-ground:#33d6b0; --t-ground:rgba(51,214,176,.10); --b-jumps:#ff7a7a; --t-jumps:rgba(255,122,122,.10); --b-rails:#d9b382; --t-rails:rgba(217,179,130,.11); --b-pipe:#9fb6d6; --t-pipe:rgba(159,182,214,.12); --b-backcountry:#a9c96b; --t-backcountry:rgba(169,201,107,.11); --b-cross:#ff8fd0; --t-cross:rgba(255,143,208,.10);
 }
 body.sun{
   --bg:#ffffff; --panel:#f1f3f8; --panel2:#e4e8f2; --text:#000000; --muted:#2b3245; --line:#6b7591;
   --done:#007a3d; --learn:#8a5a00; --next:#0058b3; --lock:#4a5266; --accent:#a1007a; --danger:#b00020;
   --doneBg:#d6f5e3; --learnBg:#fff0c2; --nextBg:#d8e9ff; --shadow:0 0 0;
   --b-trunk:#222a3a; --b-carving:#b34d00; --b-freeride:#6a3bc4; --t-carving:#fff1e5; --t-freeride:#f1ebff;
+  --b-ground:#00775f; --t-ground:#e0f7f1; --b-jumps:#b3261e; --t-jumps:#fde8e7; --b-rails:#7a5520; --t-rails:#f6eddf; --b-pipe:#3a5578; --t-pipe:#e7eef8; --b-backcountry:#4c6b14; --t-backcountry:#eef5e0; --b-cross:#a3156e; --t-cross:#fbe6f3;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.4}
@@ -39,7 +41,7 @@ header h1{font-size:18px;margin:0;flex:1;letter-spacing:.5px;text-transform:uppe
 .legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:14px;color:var(--muted);margin:4px 0 10px}
 .legend b{color:var(--text)}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px;border:2px solid}
-.progress{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.progress{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px;margin-bottom:12px}
 .prog{background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--bc);border-radius:12px;padding:8px 10px;text-align:left;min-height:64px}
 .prog.on{outline:3px solid var(--bc);outline-offset:2px}
 .prog .t{font-size:13px;color:var(--bc);font-weight:800;text-transform:uppercase;letter-spacing:.5px}
@@ -72,10 +74,19 @@ header h1{font-size:18px;margin:0;flex:1;letter-spacing:.5px;text-transform:uppe
 .lanehead{font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--bc,var(--accent));text-align:center;align-self:end;padding-bottom:2px}
 button.lanehead{scroll-margin-top:84px;min-height:44px;background:var(--panel);border:2px solid var(--bc);border-radius:10px;padding:4px 4px}
 button.lanehead.on{background:var(--bc);color:var(--bg)}
-.lanes[data-sec="1"]{background:linear-gradient(to right,var(--t-carving) 0,var(--t-carving) calc(50% - 7px),transparent calc(50% - 7px),transparent calc(50% + 7px),var(--t-freeride) calc(50% + 7px));border-radius:14px;padding:8px 6px 10px;margin:0 -6px}
+.lanes.br{background:linear-gradient(to right,var(--tl) 0,var(--tl) calc(50% - 7px),transparent calc(50% - 7px),transparent calc(50% + 7px),var(--tr) calc(50% + 7px));border-radius:14px;padding:8px 6px 10px;margin:0 -6px}
+.lanes.br.one{background:var(--tl)}
+.grid.g1{grid-template-columns:1fr}
+.grid.g1 .node{justify-self:center;width:min(100%,340px)}
+.brrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:-2px 0 12px;font-size:14px;color:var(--muted)}
+.brrow button{min-height:44px;padding:0 14px;border-radius:12px;border:2px solid var(--accent);background:var(--panel);color:var(--accent);font-weight:800}
+.brtog{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.brtog button{min-height:52px;border-radius:12px;border:2px solid var(--line);border-left:7px solid var(--bc);background:var(--panel);font-weight:800;text-align:left;padding:0 10px}
+.brtog button.on{background:var(--panel2);border-color:var(--bc)}
+.brtog button .x{float:right}
 .node.c{padding-left:14px!important}
 .node.c::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;border-radius:12px 0 0 12px;background:var(--bc)}
-.b-trunk{--bc:var(--b-trunk)} .b-carving{--bc:var(--b-carving)} .b-freeride{--bc:var(--b-freeride)}
+.b-trunk{--bc:var(--b-trunk)} .b-carving{--bc:var(--b-carving)} .b-freeride{--bc:var(--b-freeride)} .b-ground{--bc:var(--b-ground)} .b-jumps{--bc:var(--b-jumps)} .b-rails{--bc:var(--b-rails)} .b-pipe{--bc:var(--b-pipe)} .b-backcountry{--bc:var(--b-backcountry)} .b-cross{--bc:var(--b-cross)}
 .highlighting .node{opacity:.25;transition:opacity .15s}
 .highlighting .node.hl{opacity:1;outline:3px solid var(--bc);outline-offset:2px}
 .grid{position:relative;z-index:1;display:grid;column-gap:14px;row-gap:26px}
@@ -110,8 +121,8 @@ button.lanehead.on{background:var(--bc);color:var(--bg)}
 #fbar .close{top:8px}
 body.hasbar .wrap{padding-bottom:170px}
 /* sheet */
-#sheet,#planSheet,#menuSheet{position:fixed;inset:0;z-index:20;display:none;background:rgba(0,0,0,.55)}
-#sheet.show,#planSheet.show,#menuSheet.show{display:block}
+#sheet,#planSheet,#menuSheet,#brSheet{position:fixed;inset:0;z-index:20;display:none;background:rgba(0,0,0,.55)}
+#sheet.show,#planSheet.show,#menuSheet.show,#brSheet.show{display:block}
 .panel{position:absolute;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:var(--bg);border-top:3px solid var(--accent);border-radius:18px 18px 0 0;padding:14px 14px 28px;max-width:760px;margin:0 auto}
 .panel h2{margin:0 52px 4px 0;font-size:21px;line-height:1.2}
 .close{position:absolute;top:10px;right:10px;width:48px;height:48px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-size:22px;font-weight:800}
@@ -172,12 +183,13 @@ a{color:var(--next);word-break:break-all}
 <div id="nudge"><span id="nudgeTxt"></span><button class="btn" id="nudgeBtn">Back up</button></div>
 <div class="wrap">
   <div class="progress" id="progress"></div>
+  <div class="brrow" id="brrow"></div>
   <div class="legend">
     <span><i class="dot" style="border-color:var(--done);background:var(--doneBg)"></i><b>Done</b></span>
     <span><i class="dot" style="border-color:var(--learn);background:var(--learnBg)"></i><b>Learning</b></span>
     <span><i class="dot" style="border-color:var(--next);background:var(--nextBg)"></i><b>Next up</b></span>
     <span><i class="dot" style="border-color:var(--lock)"></i><b>Locked</b></span>
-    <span><b style="color:var(--b-trunk)">▌Core</b> <b style="color:var(--b-carving)">▌Carving</b> <b style="color:var(--b-freeride)">▌Freeride</b> (tap a heading to highlight)</span>
+    <span id="brlegend"></span>
     <span>★ trip goal · ⚑ weak spot · 🎓 lesson · tap a skill to see its path</span>
   </div>
   <div id="tree"></div>
@@ -188,6 +200,7 @@ a{color:var(--next);word-break:break-all}
 <div id="sheet"><div class="panel" id="detail"></div></div>
 <div id="planSheet"><div class="panel" id="plan"></div></div>
 <div id="menuSheet"><div class="panel" id="menu"></div></div>
+<div id="brSheet"><div class="panel" id="brpanel"></div></div>
 <input type="file" id="fileIn" accept=".json,application/json,text/plain" style="display:none">
 
 <script>
@@ -420,12 +433,203 @@ const SKILLS = [
   mistakes:["Committing to a line without escape routes or knowing the run-out."],
   area:"Off-piste classics around Val d'Isère and Tignes, guided.",
   safety:"Guided, with avalanche gear and training. Check the avalanche forecast. Off-piste in France is unpatrolled: check your insurance covers off-piste rescue, and never go alone." },
+
+// ───────────── OPTIONAL BRANCHES (off by default, toggled in ☰) ─────────────
+// GROUND TRICKS
+{ id:"G1", branch:"ground", name:"Ollie", hemel:"Indoor-friendly", tag:"either", pre:["T3"],
+  test:"5 ollies in a row on a gentle blue where both the nose and tail leave the snow, landing on a flat base.",
+  drills:["Stationary ollie: load the tail with your left (back) foot, lift your right (front) foot, then spring off the tail.","Rolling ollies on a gentle slope, then ollie over a line drawn in the snow.","Count it: 'load… spring… tuck'."],
+  mistakes:["Jumping off both feet at once (that's a hop, not an ollie).","Landing on an edge instead of flat."],
+  area:"Any gentle, quiet blue — or practise at Hemel before the trip.",
+  safety:"Quiet pistes only, stop at the side, look uphill before starting; wrist guards recommended." },
+{ id:"G2", name:"Nollie", branch:"ground", hemel:"Indoor-friendly", tag:"solo", pre:["G1"],
+  test:"5 nollies in a row on a gentle blue (spring off the nose with your right foot), landing flat.",
+  drills:["Same as the ollie, but load the nose with your right (front) foot and lift the left foot first.","Alternate ollie / nollie down a gentle run."],
+  mistakes:["Not moving weight far enough forward.","Catching the nose on landing — land with knees soft."],
+  area:"Gentle blues.",
+  safety:"Quiet pistes only, stop at the side, look uphill before starting; wrist guards recommended." },
+{ id:"G3", name:"Nose & tail presses", branch:"ground", hemel:"Indoor-friendly", tag:"solo", pre:["G1"],
+  test:"Hold a tail press for 3 seconds and a nose press for 3 seconds while gliding on a green/blue, 3 times each.",
+  drills:["Stationary: shift weight over one foot until the other end lifts.","Rolling presses, building up the hold time.","Nose press: hips over your right (front) foot; tail press: over your left (back) foot."],
+  mistakes:["Leaning with your shoulders instead of moving your hips over the foot.","Straight legs — keep both knees bent."],
+  area:"Flat run-outs and gentle blues.",
+  safety:"Quiet pistes only, stop at the side, look uphill before starting; wrist guards recommended." },
+{ id:"G4", name:"Butters (nose & tail pivots)", branch:"ground", hemel:"Indoor-friendly", tag:"either", pre:["G3","T10"],
+  test:"3 nose butters and 3 tail butters, pivoting at least 90° while pressing, on a gentle blue.",
+  drills:["Press (G3), then twist the free end round with your upper body leading.","Butter into a 180 to switch, then back."],
+  mistakes:["Catching the downhill edge — keep the pivot on a flat base.","Not enough press, so the board won't pivot."],
+  area:"Gentle blues; early morning when quiet.",
+  safety:"Quiet pistes only, stop at the side, look uphill before starting; wrist guards recommended." },
+{ id:"G5", name:"Ground 180s (frontside & backside)", branch:"ground", hemel:"Indoor-friendly", tag:"either", pre:["G1","T10"],
+  test:"5 frontside and 5 backside ground 180s on a gentle blue, riding away cleanly in switch.",
+  drills:["Frontside = chest leads, you see downhill first. Backside = back leads.","Start with skidded 180s on the snow, then add a small ollie.","Look where you're going, then let your shoulders and hips follow."],
+  mistakes:["Not spotting the landing.","Landing on an edge mid-spin."],
+  area:"Wide, quiet blues.",
+  safety:"Quiet pistes only, stop at the side, look uphill before starting; wrist guards recommended." },
+{ id:"G6", name:"Ollie 180s", branch:"ground", hemel:"Beyond Hemel", tag:"solo", pre:["G5"],
+  test:"5 ollie 180s each way (frontside and backside) on a groomed blue, landing switch with a flat base.",
+  drills:["Wind up your shoulders before the ollie, then release.","Add one small side hit or roller when it's consistent."],
+  mistakes:["Throwing the spin before the board leaves the snow."],
+  area:"Small rollers on blues.",
+  safety:"Quiet pistes only, stop at the side, look uphill before starting; wrist guards recommended." },
+{ id:"G7", name:"Combos & ground 360s", branch:"ground", hemel:"Beyond Hemel", tag:"solo", pre:["G4","G6"],
+  test:"3 runs linking at least 4 different ground tricks (e.g. butter → 180 → nollie → press) without stopping, plus 1 ground or butter 360 each way.",
+  drills:["Plan the combo at the top of the run.","Butter 360s on very gentle terrain."],
+  mistakes:["Trying too many tricks at once on busy pistes."],
+  area:"Quiet blues; stay visible to people above you.",
+  safety:"Quiet pistes only, stop at the side, look uphill before starting; wrist guards recommended." },
+
+// JUMPS
+{ id:"J1", name:"Straight airs on small jumps", branch:"jumps", hemel:"Beyond Hemel", tag:"lesson", pre:["G1","T13"],
+  test:"5 straight airs off a small kicker (table up to 4 m, lip up to 1 m), landing on the landing slope with a flat base and riding away.",
+  drills:["Ride over the jump without an ollie first (roll it).","Pop with a small ollie at the lip, land on both feet at once, knees soft.","Check speed: watch others and ride the run-in once."],
+  mistakes:["Leaning back on take-off.","Too slow — you land on the flat table or the knuckle instead of the landing slope."],
+  area:"Beginner line of the Tignes snowpark at the Grattalu chairlift, or the Val d'Isère snowpark.",
+  safety:"Helmet. Check the landing before hitting a jump, and call 'dropping' before you go." },
+{ id:"J2", name:"Grabs", branch:"jumps", hemel:"Beyond Hemel", tag:"solo", pre:["J1"],
+  test:"3 clean grabs (e.g. indy, melon) held for half a second on a small kicker (table up to 4 m), landing on both feet.",
+  drills:["Practise the grab stationary on flat snow.","Bring the board up to your hand, not your hand down to the board.","Goofy: indy = left (back) hand on the toe edge between your feet; melon = right (front) hand on the heel edge."],
+  mistakes:["Reaching down and bending at the waist."],
+  area:"Small line in either park.",
+  safety:"Helmet. Inspect features first, one rider at a time, never stop on a landing or in the course, and look uphill before you drop in." },
+{ id:"J3", name:"Medium jumps", branch:"jumps", hemel:"Beyond Hemel", tag:"lesson", pre:["J1","T11"],
+  test:"5 straight airs on a medium kicker (table about 6–10 m), landing in the sweet spot every time.",
+  drills:["Watch where others land and match their speed.","Ride the line several times before stepping up."],
+  mistakes:["Speed checks right before the lip."],
+  area:"Medium line of the Tignes or Val d'Isère snowpark.",
+  safety:"Helmet. Back protector recommended." },
+{ id:"J4", name:"180s off jumps", branch:"jumps", hemel:"Beyond Hemel", tag:"lesson", pre:["J2","G6"],
+  test:"5 frontside or backside 180s off a small kicker (table up to 4 m), landing switch with no hands down.",
+  drills:["Ollie 180s on the flat (G6) first.","Wind up on the approach, release at the lip.","Approach on a slight heel edge for frontside, toe edge for backside."],
+  mistakes:["Over-rotating from too much wind-up."],
+  area:"Small kicker line.",
+  safety:"Helmet. Inspect features first, one rider at a time, never stop on a landing or in the course, and look uphill before you drop in." },
+{ id:"J5", name:"360s", branch:"jumps", hemel:"Expert", tag:"lesson", pre:["J3","J4"],
+  test:"3 clean 360s on a medium kicker (table about 6–10 m), landing forwards and riding away.",
+  drills:["Trampoline or airbag sessions where available.","Small kicker first, medium after."],
+  mistakes:["Not spotting the landing."],
+  area:"Medium line; ask the park crew which features suit 360s that week.",
+  safety:"Helmet. Back protector recommended." },
+{ id:"J6", name:"Big jumps & inverts", branch:"jumps", hemel:"Expert", tag:"lesson", pre:["J5"],
+  test:"3 clean grabbed straight airs and 3 360s on a large kicker (table 12 m+), or 5 coached inverts onto an airbag.",
+  drills:["Airbag and trampoline progression with a coach."],
+  mistakes:["Learning inverts on snow before the airbag."],
+  area:"Pro line, or an airbag where available — with coaching.",
+  safety:"Coaching required. Helmet and back protector." },
+
+// RAILS & BOXES
+{ id:"R1", name:"Ride on flat boxes", branch:"rails", hemel:"Beyond Hemel", tag:"lesson", pre:["T4","T13"],
+  test:"5 straight 50-50s across a wide (30 cm+), ground-level flat box, staying on to the end and riding away.",
+  drills:["Ride the approach straight, flat base, eyes on the end of the box.","Keep weight centred and knees soft."],
+  mistakes:["Being on an edge on the box — that's how you slip off.","Looking down at your feet."],
+  area:"Beginner boxes in the Tignes snowpark or the Val d'Isère snowpark.",
+  safety:"Helmet. Wait for the feature to clear." },
+{ id:"R2", name:"Boardslides on boxes", branch:"rails", hemel:"Beyond Hemel", tag:"lesson", pre:["R1"],
+  test:"5 boardslides on a wide box (board across the box), riding away cleanly.",
+  drills:["Practise the 90° turn of the board with a small ollie on the snow.","Keep shoulders in line with the box."],
+  mistakes:["Turning shoulders with the board — you'll spin off.","Leaning uphill or back — the board slips out and you land on your hip."],
+  area:"Beginner box line.",
+  safety:"Helmet. Inspect features first, one rider at a time, never stop on a landing or in the course, and look uphill before you drop in." },
+{ id:"R3", name:"Ollie onto features", branch:"rails", hemel:"Beyond Hemel", tag:"solo", pre:["R1","G1"],
+  test:"5 ollie-ons to a 50-50 on a box whose start is 20–40 cm above the snow.",
+  drills:["Ollie onto a snow block or small step first."],
+  mistakes:["Ollieing too late and catching your nose on the end of the feature."],
+  area:"Small features in the park.",
+  safety:"Helmet. Inspect features first, one rider at a time, never stop on a landing or in the course, and look uphill before you drop in." },
+{ id:"R4", name:"Rails", branch:"rails", hemel:"Expert", tag:"lesson", pre:["R2","R3"],
+  test:"5 clean 50-50s and 3 boardslides on a wide, flat rail no more than 50 cm high.",
+  drills:["Same set-up as boxes, but more precise approach.","Wide rail first."],
+  mistakes:["Being even slightly on edge."],
+  area:"Beginner rail in either park.",
+  safety:"Helmet. Wrist guards recommended." },
+{ id:"R5", name:"Spins on & off", branch:"rails", hemel:"Expert", tag:"solo", pre:["R4","G6"],
+  test:"3 × 180 off and 3 × 270 on a small box, riding away cleanly.",
+  drills:["180 off a box first, then 270 onto a box."],
+  mistakes:["Rotating too early."],
+  area:"Medium line.",
+  safety:"Helmet. Inspect features first, one rider at a time, never stop on a landing or in the course, and look uphill before you drop in." },
+
+// HALFPIPE
+{ id:"H1", name:"Riding the walls", branch:"pipe", hemel:"Beyond Hemel", tag:"lesson", pre:["T12","G1"],
+  test:"3 full-length runs of at least 6 wall turns each, alternating frontside and backside walls, staying below the lip.",
+  drills:["Start with side-to-side turns low on the walls.","Look up the wall where you're going."],
+  mistakes:["Riding too straight down the middle.","Leaning back on the wall."],
+  area:"Check if a halfpipe is built this season — ask at the Tignes or Val d'Isère snowparks.",
+  safety:"Helmet. Drop in only when the pipe below is clear; never sit in the flat bottom." },
+{ id:"H2", name:"Pumping for speed", branch:"pipe", hemel:"Beyond Hemel", tag:"solo", pre:["H1"],
+  test:"Keep or gain speed through 6 walls without pushing or stopping.",
+  drills:["Absorb (bend your knees) as you ride up into the wall, then extend and push your feet down as you come back down the transition.","Ride a quarter pipe or roller to feel the pump."],
+  mistakes:["Stiff legs."],
+  area:"Halfpipe or quarter pipes." },
+{ id:"H3", name:"First airs", branch:"pipe", hemel:"Expert", tag:"lesson", pre:["H2","J1"],
+  test:"5 small airs out of the pipe, landing back on the wall.",
+  drills:["Small air on a quarter pipe before the halfpipe."],
+  mistakes:["Airing out onto the deck."],
+  area:"Halfpipe with coaching.",
+  safety:"Helmet. Inspect features first, one rider at a time, never stop on a landing or in the course, and look uphill before you drop in. Back protector recommended." },
+{ id:"H4", name:"Grabs & 180s in pipe", branch:"pipe", hemel:"Expert", tag:"lesson", pre:["H3","J2"],
+  test:"3 grabbed airs and 3 frontside 180s in the pipe.",
+  drills:["Coaching sessions in the pipe."],
+  mistakes:["Rotating too early."],
+  area:"Halfpipe with coaching.",
+  safety:"Helmet. Inspect features first, one rider at a time, never stop on a landing or in the course, and look uphill before you drop in. Back protector recommended." },
+
+// BACKCOUNTRY / TOURING
+{ id:"B1", name:"Avalanche course", branch:"backcountry", hemel:"Off-snow", tag:"lesson", pre:[],
+  test:"Finish a recognised 1–2 day avalanche course, including locating and probing a single buried transceiver in a 50 × 50 m area in under 5 minutes.",
+  drills:["Practise transceiver searches every trip.","Read the avalanche forecast every day before you ride."],
+  mistakes:["Owning the kit but never practising with it."],
+  area:"Book a qualified mountain guide (IFMGA/UIAGM) or an off-piste course; check it includes transceiver, probe and shovel practice.",
+  safety:"This is the foundation for everything else in this branch. Carry transceiver, probe and shovel on every off-piste outing and read the daily avalanche bulletin (BERA)." },
+{ id:"B2", name:"Hiking & bootpacking", branch:"backcountry", hemel:"Beyond Hemel", tag:"lesson", pre:["F3","B1"],
+  test:"A guided hike of 200 m+ vertical carrying your board, then a controlled descent.",
+  drills:["Board on your back, kick steps in the snow.","Guided hikes to off-piste lines."],
+  mistakes:["Starting too fast, being tired before the descent."],
+  area:"With a guide only.",
+  safety:"Guided, with avalanche gear and training. Check the avalanche forecast. Off-piste in France is unpatrolled: check your insurance covers off-piste rescue, and never go alone." },
+{ id:"B3", name:"Splitboard touring", branch:"backcountry", hemel:"Expert", tag:"lesson", pre:["B2","F4"],
+  test:"A guided splitboard tour of 500 m+ climbing, transitioning board and skins in under 10 minutes.",
+  drills:["Practise transitions at home before the trip.","Guided touring days."],
+  mistakes:["Slow transitions in the cold."],
+  area:"With a guide only.",
+  safety:"Guided, with avalanche gear and training. Check the avalanche forecast. Off-piste in France is unpatrolled: check your insurance covers off-piste rescue, and never go alone." },
+{ id:"B4", name:"Route & terrain choice", branch:"backcountry", hemel:"Expert", tag:"lesson", pre:["B3"],
+  test:"Plan and lead a short tour (300 m+ climb) with a guide observing, choosing the route based on the avalanche forecast.",
+  drills:["Plan routes with the map and forecast before every guided day.","Ask the guide to explain their choices."],
+  mistakes:["Following other tracks without thinking."],
+  area:"With a guide only.",
+  safety:"Guided, with avalanche gear and training. Check the avalanche forecast. Off-piste in France is unpatrolled: check your insurance covers off-piste rescue, and never go alone." },
+
+// BOARDERCROSS & BANKED SLALOM
+{ id:"X1", name:"Banked turns", branch:"cross", hemel:"Beyond Hemel", tag:"solo", pre:["C2"],
+  test:"Ride a boardercross or banked-turn course without skidding through 5 berms in a row.",
+  drills:["Enter each berm high and carve round it.","Look at the exit of the berm."],
+  mistakes:["Entering too low and skidding."],
+  area:"Boardercross at the Tignes snowpark, or the small family boardercross at Borsat Express in Val d'Isère.",
+  safety:"Helmet. Inspect features first, one rider at a time, never stop on a landing or in the course, and look uphill before you drop in." },
+{ id:"X2", name:"Rollers & pumping", branch:"cross", hemel:"Beyond Hemel", tag:"solo", pre:["X1","T14"],
+  test:"Pump through 5 rollers in a row without getting airborne.",
+  drills:["Absorb on the way up a roller, push down the back.","Same pump as H2 in the halfpipe."],
+  mistakes:["Getting airborne and losing speed."],
+  area:"Boardercross courses.",
+  safety:"Helmet. Inspect features first, one rider at a time, never stop on a landing or in the course, and look uphill before you drop in." },
+{ id:"X3", name:"Timed runs", branch:"cross", hemel:"Beyond Hemel", tag:"solo", pre:["X2","C4"],
+  test:"3 timed runs on the same course, each within 10% of your best, with no skids or falls.",
+  drills:["Pick the shortest line through the berms.","Race a friend only on a marked boardercross course, never on open piste."],
+  mistakes:["Speed checks in the berms."],
+  area:"Boardercross courses.",
+  safety:"Helmet. Inspect features first, one rider at a time, never stop on a landing or in the course, and look uphill before you drop in." },
 ];
 
 </script>
 <script>
 const KEY="sbtree.v1";
-const BRANCH={trunk:"Core riding",carving:"Carving",freeride:"Freeride"};
+const BRANCH={trunk:"Core riding",carving:"Carving",freeride:"Freeride",ground:"Ground tricks",jumps:"Jumps",rails:"Rails & boxes",pipe:"Halfpipe",backcountry:"Backcountry",cross:"Boardercross"};
+const OPTIONAL=Object.keys(BRANCH).filter(b=>b!=="trunk");
+const DEFAULT_ON={carving:true,freeride:true};
+const sn=id=>(typeof SHORT!=="undefined"&&SHORT[id])||byId[id].name;
+const isOn=b=>b==="trunk"||!!(S.branches||{})[b];
+const shown=s=>isOn(s.branch);
 const WEAK={speed:"Speed control on steeper pitches",flats:"Getting stuck on flats"};
 const byId={}; SKILLS.forEach(s=>byId[s.id]=s);
 let storageOK=true, S;
@@ -433,7 +637,7 @@ let storageOK=true, S;
 function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function fresh(){
   const st={}; SKILLS.forEach(s=>st[s.id]=s.start||"locked"); st.T1="done";
-  return {v:1,status:st,notes:{},videos:{},achieved:{T1:""},plan:null,sun:false,lastBackup:null,changes:0};
+  return {v:1,status:st,notes:{},videos:{},achieved:{T1:""},plan:null,sun:false,lastBackup:null,changes:0,branches:Object.assign({},DEFAULT_ON)};
 }
 function load(){
   try{
@@ -442,7 +646,7 @@ function load(){
     S=raw?merge(JSON.parse(raw)):fresh();
   }catch(e){storageOK=false;S=fresh();document.getElementById("banner").classList.add("show")}
 }
-function merge(d){const f=fresh();const o=Object.assign(f,d);o.status=Object.assign(fresh().status,d.status||{});return o}
+function merge(d){const f=fresh();const o=Object.assign(f,d);o.status=Object.assign(fresh().status,d.status||{});o.branches=Object.assign({},DEFAULT_ON,d.branches||{});return o}
 function save(change=true){
   if(change)S.changes=(S.changes||0)+1;
   if(!storageOK)return;
@@ -466,9 +670,14 @@ function chips(s){
 const SHORT={T1:"Skidded turns · blue",T2:"Turn shape",T3:"Grippy turns · blue",T4:"Flat-base glide",T5:"Skating",T6:"Cat tracks",T7:"Short turns",T8:"Steeper blues",T9:"Hardpack & ice",T10:"Switch turns",T11:"Skidded turns · red",T12:"Grippy turns · red",T13:"Hockey stops",T14:"Rollers & chop",T15:"Switch · red",T16:"Groomed blacks",T17:"Sideslip · red",
  C1:"Railroad tracks",C2:"First linked carves",C3:"Carving · blue",C4:"Carving · red",C5:"Edge angles",C6:"Dynamic turns",C7:"Turn radius",C8:"Switch carving",C9:"Carving at speed",C10:"Euro carves",
  F1:"Piste-edge soft snow",F2:"Small moguls",F3:"Powder",F4:"Tracked snow",F5:"Trees",F6:"Steep off-piste",F7:"Small drops",F8:"Chutes",F9:"Big-mountain lines"};
-const SECTIONS=[
- {title:"Core riding",root:"T1",lanes:[["Turns",["T3","T8","T17","T11","T12","T16"]],["Speed control",["T2","T7","T13","T9"]],["Terrain & switch",["T4","T5","T6","T14","T10","T15"]]]},
- {title:"Branches",lanes:[["Carving",["C1","C2","C3","C5","C4","C6","C9","C7","C8","C10"]],["Freeride",["F1","F2","F3","F4","F5","F7","F6","F8","F9"]]]}];
+const TRUNK_SECTION={title:"Core riding",root:"T1",lanes:[["Turns",["T3","T8","T17","T11","T12","T16"]],["Speed control",["T2","T7","T13","T9"]],["Terrain & switch",["T4","T5","T6","T14","T10","T15"]]]};
+function sections(){
+  const act=OPTIONAL.filter(isOn), out=[TRUNK_SECTION];
+  for(let i=0;i<act.length;i+=2){
+    out.push({lanes:act.slice(i,i+2).map(b=>[BRANCH[b],SKILLS.filter(s=>s.branch===b).map(s=>s.id)]),branches:act.slice(i,i+2)});
+  }
+  return out;
+}
 const UNLOCKS={}; SKILLS.forEach(s=>s.pre.forEach(p=>(UNLOCKS[p]=UNLOCKS[p]||[]).push(s.id)));
 let focus=null, hl=null;
 function toggleHl(br){
@@ -502,13 +711,14 @@ function card(s,extra=""){
   const vs=viewState(s),icon={done:"✓",learning:"◆",next:"▶",locked:"🔒"}[vs];
   let ic=`<span class="s">${icon} ${LABEL[vs]}</span>`;
   if(s.goal)ic+='<span style="color:var(--accent)">★</span>'; if(s.weak)ic+='<span style="color:var(--danger)">⚑</span>'; if(s.tag==="lesson")ic+='<span>🎓</span>';
-  return `<button class="node c b-${s.branch} ${vs} ${extra}${hl===s.branch?" hl":""}" data-id="${s.id}" aria-label="${esc(s.name)}"><span class="nm">${esc(SHORT[s.id]||s.name)}</span><span class="ic">${ic}</span></button>`;
+  return `<button class="node c b-${s.branch} ${vs} ${extra}${hl===s.branch?" hl":""}" data-id="${s.id}" aria-label="${esc(s.name)}"><span class="nm">${esc(sn(s.id))}</span><span class="ic">${ic}</span></button>`;
 }
 function renderTree(){
   let h="";
-  SECTIONS.forEach((sec,si)=>{
+  sections().forEach((sec,si)=>{
     const {lane,row}=layout(sec), n=sec.lanes.length, off=sec.root?2:1;
-    h+=`${si?'<div class="secgap"></div>':""}<div class="lanes" data-sec="${si}"><svg></svg><div class="grid g${n}">`;
+    const brs=sec.branches||[];
+    h+=`${si?'<div class="secgap"></div>':""}<div class="lanes ${brs.length?"br":""} ${brs.length===1?"one":""}" data-sec="${si}" style="${brs.length?`--tl:var(--t-${brs[0]});--tr:var(--t-${brs[1]||brs[0]})`:""}"><svg></svg><div class="grid g${n}">`;
     if(sec.root)h+=`<div class="lanehead" style="grid-row:1;grid-column:1/-1">${sec.title}</div>`.replace('lanehead"','lanehead" ')+card(byId[sec.root],"root").replace('class="node','style="grid-row:2" class="node');
     sec.lanes.forEach((L,i)=>{const br=byId[L[1][0]].branch;
       h+=`<button class="lanehead b-${br} ${hl===br?"on":""}" data-hl="${br}" style="grid-row:${sec.root?3:1};grid-column:${i+1}">${L[0]}</button>`});
@@ -526,9 +736,13 @@ function renderTree(){
 }
 function renderProgress(){
   let h="";
-  for(const b in BRANCH){const all=SKILLS.filter(s=>s.branch===b);const d=all.filter(s=>st(s.id)==="done").length;
+  for(const b in BRANCH){if(!isOn(b))continue;const all=SKILLS.filter(s=>s.branch===b);const d=all.filter(s=>st(s.id)==="done").length;
     h+=`<button class="prog b-${b} ${hl===b?"on":""}" data-hl="${b}"><div class="t">${BRANCH[b]}</div><div class="n">${d}/${all.length}</div><div class="bar"><i style="width:${Math.round(d/all.length*100)}%"></i></div></button>`}
-  const P=document.getElementById("progress");P.innerHTML=h;P.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>toggleHl(b.dataset.hl));
+  const P=document.getElementById("progress");P.innerHTML=h;
+  const act=OPTIONAL.filter(isOn);
+  document.getElementById("brrow").innerHTML=`<span>Showing: ${act.length?act.map(b=>BRANCH[b]).join(", "):"core riding only"}</span><button id="brEdit">Choose branches</button>`;
+  document.getElementById("brEdit").onclick=openBranches;
+  document.getElementById("brlegend").innerHTML=["trunk",...act].map(b=>`<b style="color:var(--b-${b})">▌${b==="trunk"?"Core":BRANCH[b]}</b>`).join(" ")+" (tap a heading to highlight)";P.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>toggleHl(b.dataset.hl));
 }
 function markFocus(){
   const t=document.getElementById("tree"),s=byId[focus];
@@ -545,7 +759,7 @@ function tapNode(id){
 function clearFocus(){focus=null;document.getElementById("fbar").classList.remove("show");document.body.classList.remove("hasbar");renderTree()}
 function renderBar(){
   const s=byId[focus],x=st(s.id),b=document.getElementById("fbar");
-  const nm=a=>a.map(i=>esc(SHORT[i])).join(", ")||"—";
+  const nm=a=>a.map(i=>esc(sn(i))+(shown(byId[i])?"":" (hidden)")).join(", ")||"—";
   b.innerHTML=`<button class="close" id="fx" aria-label="Clear focus">✕</button><div class="t">${esc(s.name)}</div>
   <div class="k"><b>Needs:</b> ${nm(s.pre)} · <i>Unlocks:</i> ${nm(UNLOCKS[s.id]||[])}</div>
   <div class="row">${["locked","learning","done"].map(k=>`<button data-s="${k}" class="${x===k?"on":""}">${k==="locked"?"Locked":k==="learning"?"Learning":"Done ✓"}</button>`).join("")}<button class="det" id="fdet">Details</button></div>`;
@@ -595,8 +809,8 @@ function renderDetail(msg=""){
   <div class="card"><h3>Common mistakes</h3>${list(s.mistakes)}</div>
   ${s.safety?`<div class="card safety"><h3>Safety</h3>${esc(s.safety)}</div>`:""}
   <div class="card"><h3>Tignes & Val d'Isère</h3>${esc(s.area)}</div>
-  ${s.pre.length?`<div class="card"><h3>Needs</h3><div class="pre">${s.pre.map(p=>`<button data-go="${p}">${st(p)==="done"?"✓ ":""}${esc(SHORT[p])}</button>`).join("")}</div></div>`:""}
-  ${(UNLOCKS[s.id]||[]).length?`<div class="card"><h3>Unlocks</h3><div class="pre">${UNLOCKS[s.id].map(p=>`<button data-go="${p}">${esc(SHORT[p])}</button>`).join("")}</div></div>`:""}
+  ${s.pre.length?`<div class="card"><h3>Needs</h3><div class="pre">${s.pre.map(p=>`<button data-go="${p}">${st(p)==="done"?"✓ ":""}${esc(sn(p))}${shown(byId[p])?"":" (hidden)"}</button>`).join("")}</div></div>`:""}
+  ${(UNLOCKS[s.id]||[]).length?`<div class="card"><h3>Unlocks</h3><div class="pre">${UNLOCKS[s.id].map(p=>`<button data-go="${p}">${esc(sn(p))}${shown(byId[p])?"":" (hidden)"}</button>`).join("")}</div></div>`:""}
   <div class="card"><h3>Date achieved</h3><input type="date" id="achIn" value="${esc(S.achieved[s.id]||"")}"></div>
   <div class="card"><h3>Notes</h3>${notes.length?`<ul class="log">${notes.map((n,i)=>`<li><button class="del" data-dn="${i}" aria-label="Delete note">✕</button><div class="d">${esc(n.d)}</div>${esc(n.t)}</li>`).slice().reverse().join("")}</ul>`:'<span class="muted">No notes yet.</span>'}</div>
   <div class="card"><h3>Video links</h3>${vids.length?`<ul class="log">${vids.map((v,i)=>`<li><button class="del" data-dv="${i}" aria-label="Delete link">✕</button><a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a></li>`).join("")}</ul>`:""}
@@ -619,8 +833,8 @@ function setStatus(id,v){
   if(v==="done"&&!S.achieved[id])S.achieved[id]=today();
   save();renderTree();renderDetail(t?"Status + note saved ✓":"Status saved ✓");
 }
-function closeAll(){["sheet","planSheet","menuSheet"].forEach(i=>document.getElementById(i).classList.remove("show"));renderTree();if(focus)renderBar()}
-["sheet","planSheet","menuSheet"].forEach(i=>document.getElementById(i).addEventListener("click",e=>{if(e.target.id===i)closeAll()}));
+function closeAll(){["sheet","planSheet","menuSheet","brSheet"].forEach(i=>document.getElementById(i).classList.remove("show"));renderTree();if(focus)renderBar()}
+["sheet","planSheet","menuSheet","brSheet"].forEach(i=>document.getElementById(i).addEventListener("click",e=>{if(e.target.id===i)closeAll()}));
 
 // ───── Session planner ─────
 function reasons(s,type){
@@ -639,7 +853,7 @@ function score(s,type){
   v-=s.row*2; return v;
 }
 function makePlan(type){
-  let c=SKILLS.filter(s=>st(s.id)==="learning"||(st(s.id)==="locked"&&preDone(s)));
+  let c=SKILLS.filter(s=>shown(s)).filter(s=>st(s.id)==="learning"||(st(s.id)==="locked"&&preDone(s)));
   if(type==="solo")c=c.filter(s=>s.tag!=="lesson");
   c.sort((a,b)=>score(b,type)-score(a,type));
   let items=[];
@@ -692,9 +906,20 @@ function importText(t){
   catch(e){menuMsg("That doesn't look like a valid backup.");return false}
 }
 function menuMsg(t){const m=document.getElementById("menuMsg");if(m)m.textContent=t}
+function openBranches(){renderBranches();document.getElementById("brSheet").classList.add("show")}
+function renderBranches(){
+  const p=document.getElementById("brpanel");
+  p.innerHTML=`<button class="close" data-close>✕</button><h2>Choose branches</h2>
+  <p class="muted">Core riding is always shown. Hidden branches keep your progress — they're just out of the way, and left out of Today's plan.</p>
+  <div class="brtog">${OPTIONAL.map(b=>{const all=SKILLS.filter(s=>s.branch===b),d=all.filter(s=>st(s.id)==="done").length;
+    return `<button class="b-${b} ${isOn(b)?"on":""}" data-b="${b}">${BRANCH[b]}<span class="x">${isOn(b)?"✓":"＋"}</span><br><span class="muted">${d}/${all.length} done</span></button>`}).join("")}</div>`;
+  p.querySelector("[data-close]").onclick=closeAll;
+  p.querySelectorAll("[data-b]").forEach(x=>x.onclick=()=>{S.branches[x.dataset.b]=!isOn(x.dataset.b);if(hl&&!isOn(hl))hl=null;if(focus&&!shown(byId[focus])){focus=null;document.getElementById("fbar").classList.remove("show");document.body.classList.remove("hasbar")}save(false);renderBranches();renderTree()});
+}
 function renderMenu(){
   const p=document.getElementById("menu");
   p.innerHTML=`<button class="close" data-close>✕</button><h2>Settings & backup</h2>
+  <div class="card"><div class="toggle"><span><b>Branches</b><br><span class="muted">Show or hide tricks, park, backcountry and more</span></span><button class="btn" id="brM">Choose</button></div></div>
   <div class="card"><div class="toggle"><span><b>Sun mode</b><br><span class="muted">High-contrast light theme for bright days</span></span><button class="btn" id="sunT">${S.sun?"On":"Off"}</button></div></div>
   <div class="card"><h3>Backup</h3><p class="muted">Progress is saved on this phone. ${storageOK?"Saving is working ✓":"<b style='color:var(--danger)'>Saving is NOT working in this browser.</b>"} Last backup: ${S.lastBackup||"never"}.</p>
   <button class="btn wide" id="expB">Download backup file</button><div style="height:8px"></div>
@@ -704,6 +929,7 @@ function renderMenu(){
   <div class="saved" id="menuMsg"></div>
   <div class="card"><h3>Reset</h3><button class="btn plain wide" id="rst">Reset all progress</button><div id="rstC"></div></div>`;
   p.querySelector("[data-close]").onclick=closeAll;
+  p.querySelector("#brM").onclick=()=>{document.getElementById("menuSheet").classList.remove("show");openBranches()};
   p.querySelector("#sunT").onclick=()=>{S.sun=!S.sun;save(false);applySun();renderMenu()};
   p.querySelector("#expB").onclick=exportFile;
   p.querySelector("#cpB").onclick=copyBackup;
@@ -728,7 +954,7 @@ load();applySun();renderTree();nudge();
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 addEventListener("resize",()=>requestAnimationFrame(drawLines));
 // In focus mode, tapping anywhere that isn't a skill, the focus bar, a sheet or a button closes focus
-document.addEventListener("click",e=>{if(e.target.closest(".node,#fbar,#sheet,#planSheet,#menuSheet,button,a,input,textarea"))return;if(focus)clearFocus();else if(hl){hl=null;renderTree()}});
+document.addEventListener("click",e=>{if(e.target.closest(".node,#fbar,#sheet,#planSheet,#menuSheet,#brSheet,button,a,input,textarea"))return;if(focus)clearFocus();else if(hl){hl=null;renderTree()}});
 </script>
 </body>
 </html>
