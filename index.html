@@ -78,14 +78,17 @@ button.lanehead.on{background:var(--bc);color:var(--bg)}
 .lanes.br.one{background:var(--tl)}
 .grid.g1{grid-template-columns:1fr}
 .grid.g1 .node{justify-self:center;width:min(100%,340px)}
-.brrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:-2px 0 12px;font-size:14px;color:var(--muted)}
-.brrow button{min-height:44px;padding:0 14px;border-radius:12px;border:2px solid var(--accent);background:var(--panel);color:var(--accent);font-weight:800}
+#brlegend{display:inline-flex;flex-wrap:wrap;align-items:center;gap:2px 8px}
+.cog{width:44px;height:44px;margin:-10px -8px -10px -4px;border:none;background:none;color:var(--muted);font-size:21px;line-height:1;padding:0}
 .brlist .bri{background:var(--panel);border:2px solid var(--line);border-left:8px solid var(--bc);border-radius:14px;padding:10px 12px;margin:10px 0}
 .brlist .bri.on{border-color:var(--bc)}
 .bri .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .bri .top b{font-size:18px;color:var(--bc)}
-.bri .top button{min-height:48px;min-width:96px;border-radius:12px;border:2px solid var(--bc);background:var(--panel2);font-weight:800;color:var(--bc)}
-.bri .top button.on{background:var(--bc);color:var(--bg)}
+.bri .top button{flex:none;width:72px;height:48px;border:none;background:none;padding:0;display:flex;align-items:center;justify-content:flex-end}
+.sw{position:relative;width:58px;height:32px;border-radius:16px;background:var(--panel2);border:2px solid var(--line);transition:background .15s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--muted);transition:left .15s}
+button.on .sw{background:var(--bc);border-color:var(--bc)}
+button.on .sw::after{left:29px;background:var(--bg)}
 .bri p{margin:8px 0}
 .lvl{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin:6px 0}
 .lvl span{font-size:11.5px;font-weight:700;text-align:center;padding:4px 0;border-radius:6px;background:var(--panel2);color:var(--muted)}
@@ -194,7 +197,6 @@ a{color:var(--next);word-break:break-all}
 <div id="nudge"><span id="nudgeTxt"></span><button class="btn" id="nudgeBtn">Back up</button></div>
 <div class="wrap">
   <div class="progress" id="progress"></div>
-  <div class="brrow" id="brrow"></div>
   <div class="legend">
     <span><i class="dot" style="border-color:var(--done);background:var(--doneBg)"></i><b>Done</b></span>
     <span><i class="dot" style="border-color:var(--learn);background:var(--learnBg)"></i><b>Learning</b></span>
@@ -751,9 +753,9 @@ function renderProgress(){
     h+=`<button class="prog b-${b} ${hl===b?"on":""}" data-hl="${b}"><div class="t">${BRANCH[b]}</div><div class="n">${d}/${all.length}</div><div class="bar"><i style="width:${Math.round(d/all.length*100)}%"></i></div></button>`}
   const P=document.getElementById("progress");P.innerHTML=h;
   const act=OPTIONAL.filter(isOn);
-  document.getElementById("brrow").innerHTML=`<span>Showing: ${act.length?act.map(b=>BRANCH[b]).join(", "):"core riding only"}</span><button id="brEdit">Choose branches</button>`;
-  document.getElementById("brEdit").onclick=openBranches;
-  document.getElementById("brlegend").innerHTML=["trunk",...act].map(b=>`<b style="color:var(--b-${b})">▌${b==="trunk"?"Core":BRANCH[b]}</b>`).join(" ")+" (tap a heading to highlight)";P.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>toggleHl(b.dataset.hl));
+
+  document.getElementById("brlegend").innerHTML=["trunk",...act].map(b=>`<b style="color:var(--b-${b})">▌${b==="trunk"?"Core":BRANCH[b]}</b>`).join(" ")+' <button id="brEdit" class="cog" aria-label="Choose branches" title="Choose branches">⚙</button>';
+  document.getElementById("brEdit").onclick=openBranches;P.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>toggleHl(b.dataset.hl));
 }
 function markFocus(){
   const t=document.getElementById("tree"),s=byId[focus];
@@ -942,9 +944,9 @@ function openBranches(){renderBranches();document.getElementById("brSheet").clas
 function renderBranches(){
   const p=document.getElementById("brpanel");
   p.innerHTML=`<button class="close" data-close>✕</button><h2>Choose branches</h2>
-  <p class="muted">Core riding is always shown. Branches are listed from easiest to hardest to start; the bar shows the level range each one covers. Hidden branches keep your progress and are left out of Today's plan.</p>
+  <p class="muted" style="margin-right:52px">Core riding is always shown. Branches are listed from easiest to hardest to start; the bar shows the level range each one covers. Hidden branches keep your progress and are left out of Today's plan.</p>
   <div class="brlist">${OPTIONAL.slice().sort((x,y)=>BINFO[x].lo-BINFO[y].lo||BINFO[x].hi-BINFO[y].hi).map(b=>{const all=SKILLS.filter(s=>s.branch===b),d=all.filter(s=>st(s.id)==="done").length,I=BINFO[b];
-    return `<div class="bri b-${b} ${isOn(b)?"on":""}"><div class="top"><div><b>${BRANCH[b]}</b><div class="muted">${all.length} skills · ${d} done</div></div><button data-b="${b}" class="${isOn(b)?"on":""}" aria-pressed="${isOn(b)}">${isOn(b)?"Shown ✓":"Show"}</button></div>
+    return `<div class="bri b-${b} ${isOn(b)?"on":""}"><div class="top"><div><b>${BRANCH[b]}</b><div class="muted">${all.length} skills · ${d} done</div></div><button data-b="${b}" class="${isOn(b)?"on":""}" role="switch" aria-checked="${isOn(b)}" aria-label="Show ${BRANCH[b]}"><span class="sw"></span></button></div>
     <p>${I.d}</p>${levelBar(I.lo,I.hi)}<div class="hint">${startHint(b)}</div></div>`}).join("")}</div>`;
   p.querySelector("[data-close]").onclick=closeAll;
   p.querySelectorAll("[data-b]").forEach(x=>x.onclick=()=>{S.branches[x.dataset.b]=!isOn(x.dataset.b);if(hl&&!isOn(hl))hl=null;if(focus&&!shown(byId[focus])){focus=null;document.getElementById("fbar").classList.remove("show");document.body.classList.remove("hasbar")}save(false);renderBranches();renderTree()});
