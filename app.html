@@ -44,7 +44,7 @@ header h1{font-size:18px;margin:0;flex:1;letter-spacing:.5px;text-transform:uppe
 .bar i{display:block;height:100%;background:var(--done)}
 #treeWrap{position:relative}
 #lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
-#tree{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;column-gap:22px;row-gap:22px}
+#tree{position:relative}
 .sec{grid-column:1/-1;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--accent);font-size:14px;margin-top:6px;display:flex;gap:8px;align-items:center}
 .sec.split{display:grid;grid-template-columns:1fr 1fr;column-gap:22px}
 .node{position:relative;min-height:72px;text-align:left;border-radius:14px;border:2px solid var(--lock);background:var(--panel);padding:24px 10px 10px 12px;display:flex;flex-direction:column;justify-content:center;gap:4px}
@@ -64,6 +64,39 @@ header h1{font-size:18px;margin:0;flex:1;letter-spacing:.5px;text-transform:uppe
 .chip{font-size:12px;font-weight:700;padding:1px 6px;border-radius:6px;border:1px solid var(--line);white-space:nowrap}
 .chip.goal{border-color:var(--accent);color:var(--accent)}
 .chip.weak{border-color:var(--danger);color:var(--danger)}
+/* lanes */
+.lanehead{font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);text-align:center;align-self:end;padding-bottom:2px}
+.grid{position:relative;z-index:1;display:grid;column-gap:14px;row-gap:26px}
+.grid.g3{grid-template-columns:repeat(3,1fr)}
+.grid.g2{grid-template-columns:repeat(2,1fr)}
+.lanes{position:relative}
+.lanes svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.cell{min-height:76px}
+.node.c{min-height:76px;padding:8px 8px 7px;gap:3px;justify-content:flex-start}
+.node.c .nm{font-size:15px;line-height:1.2}
+.node .ic{font-size:13px;font-weight:800;display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.node .ic .s{font-size:11px;letter-spacing:.4px;text-transform:uppercase}
+.node.next .ic .s{color:var(--next)} .node.learning .ic .s{color:var(--learn)} .node.done .ic .s{color:var(--done)} .node.locked .ic .s{color:var(--lock)}
+.node.root{grid-column:1/-1;justify-self:center;width:min(100%,320px);min-height:64px}
+.focusing .node{opacity:.28;transition:opacity .15s}
+.focusing .node.f-self,.focusing .node.f-pre,.focusing .node.f-post{opacity:1}
+.node.f-self{outline:3px solid var(--text);outline-offset:3px}
+.node.f-pre{outline:3px solid var(--accent);outline-offset:2px}
+.node.f-post{outline:3px dashed var(--next);outline-offset:2px}
+.secgap{height:30px}
+#fbar{position:fixed;left:0;right:0;bottom:0;z-index:15;display:none;background:var(--bg);border-top:3px solid var(--text);padding:10px 12px 14px;max-width:760px;margin:0 auto}
+#fbar.show{display:block}
+#fbar .t{font-weight:800;font-size:17px;margin-right:52px}
+#fbar .k{margin-right:64px;font-size:13px;color:var(--muted);margin:2px 0 8px}
+#fbar .k b{color:var(--accent)} #fbar .k i{color:var(--next);font-style:normal;font-weight:700}
+#fbar .row{display:grid;grid-template-columns:1fr 1fr 1fr 1.2fr;gap:6px}
+#fbar .row button{min-height:52px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-weight:800;font-size:14px}
+#fbar .row button.on[data-s=learning]{border-color:var(--learn);color:var(--learn);background:var(--learnBg)}
+#fbar .row button.on[data-s=done]{border-color:var(--done);color:var(--done);background:var(--doneBg)}
+#fbar .row button.on[data-s=locked]{border-color:var(--lock);background:var(--panel2)}
+#fbar .row button.det{border-color:var(--accent);color:var(--accent)}
+#fbar .close{top:8px}
+body.hasbar .wrap{padding-bottom:170px}
 /* sheet */
 #sheet,#planSheet,#menuSheet{position:fixed;inset:0;z-index:20;display:none;background:rgba(0,0,0,.55)}
 #sheet.show,#planSheet.show,#menuSheet.show{display:block}
@@ -108,7 +141,7 @@ a{color:var(--next);word-break:break-all}
 .toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:56px}
 .toggle button{min-width:80px}
 @media (max-width:420px){
-  #tree{column-gap:12px;row-gap:20px}
+  .grid{column-gap:8px} .node.c{padding:7px 6px 6px} .node.c .nm{font-size:14px} .lanehead{font-size:11px;letter-spacing:.3px}
   .sec.split{column-gap:12px}
   .node{padding:24px 8px 8px 9px}
   .node .nm{font-size:15px}
@@ -132,12 +165,13 @@ a{color:var(--next);word-break:break-all}
     <span><i class="dot" style="border-color:var(--learn);background:var(--learnBg)"></i><b>Learning</b></span>
     <span><i class="dot" style="border-color:var(--next);background:var(--nextBg)"></i><b>Next up</b></span>
     <span><i class="dot" style="border-color:var(--lock)"></i><b>Locked</b></span>
-    <span>★ trip goal · ⚑ weak spot · 🎓 lesson</span>
+    <span>★ trip goal · ⚑ weak spot · 🎓 lesson · tap a skill to see its path</span>
   </div>
-  <div id="treeWrap"><svg id="lines"></svg><div id="tree"></div></div>
+  <div id="tree"></div>
   <p class="muted" style="margin-top:22px">Hemel levels are a rough guide only. Goofy stance: right foot forward; toeside turns go to your left, heelside to your right.</p>
 </div>
 
+<div id="fbar"></div>
 <div id="sheet"><div class="panel" id="detail"></div></div>
 <div id="planSheet"><div class="panel" id="plan"></div></div>
 <div id="menuSheet"><div class="panel" id="menu"></div></div>
@@ -186,19 +220,56 @@ function chips(s){
   if(s.tag==="lesson")h+='<span class="chip">🎓</span>';
   return h;
 }
+const SHORT={T1:"Skidded turns · blue",T2:"Turn shape",T3:"Grippy turns · blue",T4:"Flat-base glide",T5:"Skating",T6:"Cat tracks",T7:"Short turns",T8:"Steeper blues",T9:"Hardpack & ice",T10:"Switch turns",T11:"Skidded turns · red",T12:"Grippy turns · red",T13:"Hockey stops",T14:"Rollers & chop",T15:"Switch · red",T16:"Groomed blacks",T17:"Sideslip · red",
+ C1:"Railroad tracks",C2:"First linked carves",C3:"Carving · blue",C4:"Carving · red",C5:"Edge angles",C6:"Dynamic turns",C7:"Turn radius",C8:"Switch carving",C9:"Carving at speed",C10:"Euro carves",
+ F1:"Piste-edge soft snow",F2:"Small moguls",F3:"Powder",F4:"Tracked snow",F5:"Trees",F6:"Steep off-piste",F7:"Small drops",F8:"Chutes",F9:"Big-mountain lines"};
+const SECTIONS=[
+ {title:"Core riding",root:"T1",lanes:[["Turns",["T3","T8","T17","T11","T12","T16"]],["Speed control",["T2","T7","T13","T9"]],["Terrain & switch",["T4","T5","T6","T14","T10","T15"]]]},
+ {title:"Branches",lanes:[["Carving",["C1","C2","C3","C5","C4","C6","C9","C7","C8","C10"]],["Freeride",["F1","F2","F3","F4","F5","F7","F6","F8","F9"]]]}];
+const UNLOCKS={}; SKILLS.forEach(s=>s.pre.forEach(p=>(UNLOCKS[p]=UNLOCKS[p]||[]).push(s.id)));
+let focus=null;
+// Place each skill in its lane at the first free row below all its in-section prerequisites
+function layout(sec){
+  const lane={},row={},used={};
+  sec.lanes.forEach((L,i)=>L[1].forEach(id=>lane[id]=i));
+  const ids=sec.lanes.flatMap(L=>L[1]); const done=new Set();
+  if(sec.root){row[sec.root]=0;done.add(sec.root)}
+  let guard=0;
+  while(done.size<ids.length+(sec.root?1:0)&&guard++<500){
+    for(const id of ids){ if(done.has(id))continue;
+      const pre=byId[id].pre.filter(p=>p in lane||p===sec.root);
+      if(!pre.every(p=>done.has(p)))continue;
+      let r=pre.length?Math.max(...pre.map(p=>row[p]))+1:(sec.root?1:0);
+      // keep lane order: never above the previous skill in the same lane
+      const L=sec.lanes[lane[id]][1],k=L.indexOf(id); if(k>0&&row[L[k-1]]!==undefined)r=Math.max(r,row[L[k-1]]+1);
+      while(used[lane[id]+":"+r])r++;
+      used[lane[id]+":"+r]=1;row[id]=r;done.add(id);
+    }
+  }
+  return {lane,row};
+}
+function card(s,extra=""){
+  const vs=viewState(s),icon={done:"✓",learning:"◆",next:"▶",locked:"🔒"}[vs];
+  let ic=`<span class="s">${icon} ${LABEL[vs]}</span>`;
+  if(s.goal)ic+='<span style="color:var(--accent)">★</span>'; if(s.weak)ic+='<span style="color:var(--danger)">⚑</span>'; if(s.tag==="lesson")ic+='<span>🎓</span>';
+  return `<button class="node c ${vs} ${extra}" data-id="${s.id}" aria-label="${esc(s.name)}"><span class="nm">${esc(SHORT[s.id]||s.name)}</span><span class="ic">${ic}</span></button>`;
+}
 function renderTree(){
-  const t=document.getElementById("tree"); let h='<div class="sec" style="grid-row:0">Core riding — the trunk</div>';
-  const rows={};
-  SKILLS.forEach(s=>{
-    const vs=viewState(s);
-    const col=s.col==="span"?"1 / -1":(s.col+1);
-    h+=`<button class="node ${vs} ${s.col==="span"?"span":""} ${vs==="locked"?"dim":""}" data-id="${s.id}" style="grid-row:${s.row+1};grid-column:${col}">
-      <span class="st">${LABEL[vs]}</span><span class="nm">${esc(s.name)}</span><span class="meta">${chips(s)}<span>${esc(s.hemel)}</span></span></button>`;
+  let h="";
+  SECTIONS.forEach((sec,si)=>{
+    const {lane,row}=layout(sec), n=sec.lanes.length, off=sec.root?2:1;
+    h+=`${si?'<div class="secgap"></div>':""}<div class="lanes" data-sec="${si}"><svg></svg><div class="grid g${n}">`;
+    if(sec.root)h+=`<div class="lanehead" style="grid-row:1;grid-column:1/-1">${sec.title}</div>`.replace('lanehead"','lanehead" ')+card(byId[sec.root],"root").replace('class="node','style="grid-row:2" class="node');
+    sec.lanes.forEach((L,i)=>h+=`<div class="lanehead" style="grid-row:${sec.root?3:1};grid-column:${i+1}">${L[0]}</div>`);
+    const base=sec.root?3:1;
+    for(const id in row){ if(id===sec.root)continue;
+      h+=card(byId[id]).replace('class="node',`style="grid-row:${row[id]+base};grid-column:${lane[id]+1}" class="node`);
+    }
+    h+="</div></div>";
   });
-  h+='<div class="sec" style="grid-row:11;grid-column:1">Carving</div><div class="sec" style="grid-row:11;grid-column:2">Freeride</div>';
-  t.innerHTML=h;
-  t.querySelector(".sec").style.gridRow="1";
-  t.querySelectorAll(".node").forEach(n=>n.onclick=()=>openSkill(n.dataset.id));
+  const t=document.getElementById("tree"); t.innerHTML=h; t.classList.toggle("focusing",!!focus);
+  t.querySelectorAll(".node").forEach(n=>n.onclick=()=>tapNode(n.dataset.id));
+  if(focus)markFocus();
   renderProgress(); requestAnimationFrame(drawLines);
 }
 function renderProgress(){
@@ -207,24 +278,55 @@ function renderProgress(){
     h+=`<div class="prog"><div class="t">${BRANCH[b]}</div><div class="n">${d}/${all.length}</div><div class="bar"><i style="width:${Math.round(d/all.length*100)}%"></i></div></div>`}
   document.getElementById("progress").innerHTML=h;
 }
-function drawLines(){
-  const wrap=document.getElementById("treeWrap"),svg=document.getElementById("lines");
-  const W=wrap.getBoundingClientRect(); svg.setAttribute("viewBox",`0 0 ${W.width} ${W.height}`);
-  const cs=getComputedStyle(document.body); let h="";
-  SKILLS.forEach(s=>{
-    const a=wrap.querySelector(`[data-id="${s.id}"]`).getBoundingClientRect();
-    s.pre.filter(p=>s.row-byId[p].row<=2).forEach(p=>{
-      const b=wrap.querySelector(`[data-id="${p}"]`).getBoundingClientRect();
-      const x1=b.left+b.width/2-W.left,y1=b.bottom-W.top,x2=a.left+a.width/2-W.left,y2=a.top-W.top;
-      const done=st(p)==="done";
-      const col=done?cs.getPropertyValue("--done"):cs.getPropertyValue("--line");
-      const my=(y1+y2)/2;
-      h+=`<path d="M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}" fill="none" stroke="${col.trim()}" stroke-width="${done?3:2}" ${done?"":'stroke-dasharray="5 5"'} opacity="${done?0.9:0.8}"/>`;
-    });
-  });
-  svg.innerHTML=h;
+function markFocus(){
+  const t=document.getElementById("tree"),s=byId[focus];
+  const q=id=>t.querySelector(`[data-id="${id}"]`);
+  q(focus)&&q(focus).classList.add("f-self");
+  s.pre.forEach(p=>q(p)&&q(p).classList.add("f-pre"));
+  (UNLOCKS[focus]||[]).forEach(p=>q(p)&&q(p).classList.add("f-post"));
 }
-
+function tapNode(id){
+  if(focus===id){openSkill(id);return}
+  focus=id; renderTree(); renderBar();
+}
+function clearFocus(){focus=null;document.getElementById("fbar").classList.remove("show");document.body.classList.remove("hasbar");renderTree()}
+function renderBar(){
+  const s=byId[focus],x=st(s.id),b=document.getElementById("fbar");
+  const nm=a=>a.map(i=>esc(SHORT[i])).join(", ")||"—";
+  b.innerHTML=`<button class="close" id="fx" aria-label="Clear focus">✕</button><div class="t">${esc(s.name)}</div>
+  <div class="k"><b>Needs:</b> ${nm(s.pre)} · <i>Unlocks:</i> ${nm(UNLOCKS[s.id]||[])}</div>
+  <div class="row">${["locked","learning","done"].map(k=>`<button data-s="${k}" class="${x===k?"on":""}">${k==="locked"?"Locked":k==="learning"?"Learning":"Done ✓"}</button>`).join("")}<button class="det" id="fdet">Details</button></div>`;
+  b.classList.add("show");document.body.classList.add("hasbar");
+  b.querySelector("#fx").onclick=clearFocus;
+  b.querySelector("#fdet").onclick=()=>openSkill(focus);
+  b.querySelectorAll("[data-s]").forEach(k=>k.onclick=()=>{S.status[focus]=k.dataset.s;if(k.dataset.s==="done"&&!S.achieved[focus])S.achieved[focus]=today();save();renderTree();renderBar()});
+}
+function drawLines(){
+  const cs=getComputedStyle(document.body),col=v=>cs.getPropertyValue(v).trim();
+  document.querySelectorAll(".lanes").forEach(wrap=>{
+    const svg=wrap.querySelector("svg"),W=wrap.getBoundingClientRect(); svg.setAttribute("viewBox",`0 0 ${W.width} ${W.height}`);
+    const box=id=>{const e=wrap.querySelector(`[data-id="${id}"]`);return e&&e.getBoundingClientRect()};
+    const cards=[...wrap.querySelectorAll(".node")].map(e=>({id:e.dataset.id,r:e.getBoundingClientRect()}));
+    let h=`<defs><marker id="ah${wrap.dataset.sec}a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="${col("--accent")}"/></marker>
+    <marker id="ah${wrap.dataset.sec}n" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="${col("--next")}"/></marker></defs>`;
+    const X=r=>r.left+r.width/2-W.left;
+    SKILLS.forEach(s=>{const a=box(s.id);if(!a)return;
+      s.pre.forEach(p=>{const b=box(p);if(!b)return;
+        const f=focus&&(s.id===focus||p===focus);
+        const straight=Math.abs(X(a)-X(b))<2;
+        // Always-on: straight in-lane links with nothing in between. Others only in focus mode.
+        const blocked=straight&&cards.some(c=>c.id!==s.id&&c.id!==p&&Math.abs(X(c.r)-X(a))<2&&c.r.top>b.bottom&&c.r.bottom<a.top);
+        if(!f&&(!straight||blocked||focus))return;
+        const x1=X(b),y1=b.bottom-W.top,x2=X(a),y2=a.top-W.top-2,my=(y1+y2)/2;
+        if(f){const c=p===focus?"--next":"--accent";
+          h+=`<path d="M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}" fill="none" stroke="${col(c)}" stroke-width="3.5" marker-end="url(#ah${wrap.dataset.sec}${c==="--next"?"n":"a"})"/>`;
+        }else{const d=st(p)==="done";
+          h+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col(d?"--done":"--line")}" stroke-width="${d?4:3}"/>`;}
+      });
+    });
+    svg.innerHTML=h;
+  });
+}
 let cur=null;
 function openSkill(id){cur=id;renderDetail();document.getElementById("sheet").classList.add("show");document.querySelector("#sheet .panel").scrollTop=0}
 function renderDetail(msg=""){
@@ -240,7 +342,8 @@ function renderDetail(msg=""){
   <div class="card"><h3>Common mistakes</h3>${list(s.mistakes)}</div>
   ${s.safety?`<div class="card safety"><h3>Safety</h3>${esc(s.safety)}</div>`:""}
   <div class="card"><h3>Tignes & Val d'Isère</h3>${esc(s.area)}</div>
-  ${s.pre.length?`<div class="card"><h3>Builds on</h3><div class="pre">${s.pre.map(p=>`<button data-go="${p}">${st(p)==="done"?"✓ ":""}${esc(byId[p].name)}</button>`).join("")}</div></div>`:""}
+  ${s.pre.length?`<div class="card"><h3>Needs</h3><div class="pre">${s.pre.map(p=>`<button data-go="${p}">${st(p)==="done"?"✓ ":""}${esc(SHORT[p])}</button>`).join("")}</div></div>`:""}
+  ${(UNLOCKS[s.id]||[]).length?`<div class="card"><h3>Unlocks</h3><div class="pre">${UNLOCKS[s.id].map(p=>`<button data-go="${p}">${esc(SHORT[p])}</button>`).join("")}</div></div>`:""}
   <div class="card"><h3>Date achieved</h3><input type="date" id="achIn" value="${esc(S.achieved[s.id]||"")}"></div>
   <div class="card"><h3>Notes</h3>${notes.length?`<ul class="log">${notes.map((n,i)=>`<li><button class="del" data-dn="${i}" aria-label="Delete note">✕</button><div class="d">${esc(n.d)}</div>${esc(n.t)}</li>`).slice().reverse().join("")}</ul>`:'<span class="muted">No notes yet.</span>'}</div>
   <div class="card"><h3>Video links</h3>${vids.length?`<ul class="log">${vids.map((v,i)=>`<li><button class="del" data-dv="${i}" aria-label="Delete link">✕</button><a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a></li>`).join("")}</ul>`:""}
@@ -263,7 +366,7 @@ function setStatus(id,v){
   if(v==="done"&&!S.achieved[id])S.achieved[id]=today();
   save();renderTree();renderDetail(t?"Status + note saved ✓":"Status saved ✓");
 }
-function closeAll(){["sheet","planSheet","menuSheet"].forEach(i=>document.getElementById(i).classList.remove("show"));renderTree()}
+function closeAll(){["sheet","planSheet","menuSheet"].forEach(i=>document.getElementById(i).classList.remove("show"));renderTree();if(focus)renderBar()}
 ["sheet","planSheet","menuSheet"].forEach(i=>document.getElementById(i).addEventListener("click",e=>{if(e.target.id===i)closeAll()}));
 
 // ───── Session planner ─────
@@ -371,6 +474,7 @@ function applySun(){document.body.classList.toggle("sun",!!S.sun);requestAnimati
 load();applySun();renderTree();nudge();
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 addEventListener("resize",()=>requestAnimationFrame(drawLines));
+document.getElementById("tree").addEventListener("click",e=>{if(focus&&!e.target.closest(".node"))clearFocus()});
 </script>
 </body>
 </html>
