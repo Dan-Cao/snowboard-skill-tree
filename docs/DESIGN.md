@@ -18,7 +18,7 @@ The main job is to **plan what to practise next**. Tracking progress comes secon
 ## Content rules
 
 - **Teaching standard:** order and terminology follow how **BASI** (British Association of Snowsports Instructors) teaches: basic → skidded → carved/dynamic turns, with edge, pivot and pressure language (e.g. "progressive edging"). BASI's Central Theme manual isn't public, so reviews have checked against general BASI practice.
-- **Hemel levels** are a *loose* reference tag on each skill ("≈ Hemel 6", "Beyond Hemel"). They don't drive the structure.
+- **No Hemel level tags.** Skills used to carry a loose "≈ Hemel 6" / "Beyond Hemel" tag. Removed in Nov 2026 because Dan has worked through the Hemel levels, so they no longer help.
 - **Every skill has:**
   - `test`: a measurable done-when test, using a rep count and/or a terrain grade or feature size (e.g. "10 linked turns on a red", "small kicker, table up to 4 m"). Avoid vague tests like "feels good" or "the steepest blue you know".
   - `drills`

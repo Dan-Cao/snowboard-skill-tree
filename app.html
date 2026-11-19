@@ -206,7 +206,7 @@ a{color:var(--next);word-break:break-all}
     <span>★ trip goal · ⚑ weak spot · 🎓 lesson · tap a skill to see its path</span>
   </div>
   <div id="tree"></div>
-  <p class="muted" style="margin-top:22px">Hemel levels are a rough guide only. Goofy stance: right foot forward; toeside turns go to your left, heelside to your right.</p>
+  <p class="muted" style="margin-top:22px">Goofy stance: right foot forward; toeside turns go to your left, heelside to your right.</p>
 </div>
 
 <div id="fbar"></div>
@@ -397,7 +397,7 @@ function renderDetail(msg=""){
   const s=byId[cur],x=st(s.id),notes=S.notes[s.id]||[],vids=S.videos[s.id]||[];
   const list=a=>"<ul>"+a.map(i=>"<li>"+esc(i)+"</li>").join("")+"</ul>";
   let h=`<button class="close" data-close>✕</button><h2>${esc(s.name)}</h2>
-  <div class="sub"><span>${BRANCH[s.branch]}</span>·<span>${esc(s.hemel)}</span>·<span>${TAG[s.tag]}</span>${s.goal?'<span class="chip goal">★ Tignes goal</span>':""}${s.weak?`<span class="chip weak">⚑ ${WEAK[s.weak]}</span>`:""}</div>
+  <div class="sub"><span>${BRANCH[s.branch]}</span>·<span>${TAG[s.tag]}</span>${s.goal?'<span class="chip goal">★ Tignes goal</span>':""}${s.weak?`<span class="chip weak">⚑ ${WEAK[s.weak]}</span>`:""}</div>
   <div class="status">${["locked","learning","done"].map(k=>`<button data-s="${k}" class="${x===k?"on":""}">${k==="locked"?"Locked":k==="learning"?"Learning":"Done ✓"}</button>`).join("")}</div>
   <div class="noteRow"><textarea id="noteIn" placeholder="Quick note (e.g. what the instructor said)"></textarea></div>
   <button class="btn wide" id="noteSave">Save note</button><div class="saved" id="savedMsg">${msg}</div>
