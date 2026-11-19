@@ -25,6 +25,20 @@ body.sun{
   --b-trunk:#222a3a; --b-carving:#b34d00; --b-freeride:#6a3bc4; --t-carving:#fff1e5; --t-freeride:#f1ebff;
   --b-ground:#00775f; --t-ground:#e0f7f1; --b-jumps:#b3261e; --t-jumps:#fde8e7; --b-rails:#7a5520; --t-rails:#f6eddf; --b-pipe:#3a5578; --t-pipe:#e7eef8; --b-backcountry:#4c6b14; --t-backcountry:#eef5e0; --b-cross:#a3156e; --t-cross:#fbe6f3;
 }
+body.bluebird{
+  --bg:#cfeeff; --panel:#ffffff; --panel2:#e6f4ff; --text:#0b2540; --muted:#34536f; --line:#7fb4dc;
+  --done:#00843d; --learn:#a86200; --next:#0060c7; --lock:#5d6f80; --accent:#e0287d; --danger:#c0002a;
+  --doneBg:#d9f7e5; --learnBg:#fff1cc; --nextBg:#dcecff; --shadow:0 0 0;
+  --b-trunk:#0b2540; --b-carving:#c45500; --b-freeride:#6a3bc4; --t-carving:#fff1e5; --t-freeride:#f1ebff;
+  --b-ground:#00775f; --t-ground:#e0f7f1; --b-jumps:#b3261e; --t-jumps:#fde8e7; --b-rails:#7a5520; --t-rails:#f6eddf; --b-pipe:#3a5578; --t-pipe:#e7eef8; --b-backcountry:#4c6b14; --t-backcountry:#eef5e0; --b-cross:#a3156e; --t-cross:#fbe6f3;
+}
+body.bubblegum{
+  --bg:#fff0f7; --panel:#ffffff; --panel2:#ffe0ef; --text:#3a0d2e; --muted:#6e3a5e; --line:#e9a8cc;
+  --done:#0a8f4f; --learn:#b05f00; --next:#1f63d6; --lock:#7d6a78; --accent:#d6177f; --danger:#c0002a;
+  --doneBg:#d8f6e6; --learnBg:#fff0cf; --nextBg:#e0eaff; --shadow:0 0 0;
+  --b-trunk:#3a0d2e; --b-carving:#c45500; --b-freeride:#7b3fd1; --t-carving:#fff1e5; --t-freeride:#f3ebff;
+  --b-ground:#00775f; --t-ground:#e0f7f1; --b-jumps:#b3261e; --t-jumps:#fde8e7; --b-rails:#7a5520; --t-rails:#f6eddf; --b-pipe:#3a5578; --t-pipe:#e7eef8; --b-backcountry:#4c6b14; --t-backcountry:#eef5e0; --b-cross:#a3156e; --t-cross:#fbe6f3;
+}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.4}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -185,6 +199,19 @@ a{color:var(--next);word-break:break-all}
   header h1{font-size:15px}
 }
 @media (min-width:640px){ html,body{font-size:18px} .node .nm{font-size:17px} }
+/* Fun theme extras */
+body.bluebird,html:has(body.bluebird){background:linear-gradient(#8fd3ff,#e9f7ff 420px) fixed}
+body.bluebird header{background:#8fd3ff;border-bottom:none}
+body.bluebird header h1::after{content:" \2600\FE0F"}
+body.bluebird .node{border-radius:22px;box-shadow:0 3px 0 var(--line)}
+body.bubblegum header{background:#ffd1e8;border-bottom:3px solid #ff8cc6}
+body.bubblegum header h1::after{content:" \1F36C"}
+body.bubblegum .node,body.bubblegum .prog{border-radius:24px}
+body.bubblegum .hbtn{border-radius:999px}
+.themes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.themes button{min-height:56px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-weight:800;display:flex;align-items:center;gap:10px;padding:6px 10px;text-align:left}
+.themes button.on{border-color:var(--accent);color:var(--accent);background:var(--panel2)}
+.themes .tsw{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--line)}
 </style>
 </head>
 <body>
@@ -234,7 +261,7 @@ let storageOK=true, S;
 function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function fresh(){
   const st={}; SKILLS.forEach(s=>st[s.id]=s.start||"locked"); st.T1="done";
-  return {v:1,status:st,notes:{},videos:{},achieved:{T1:""},plan:null,sun:false,lastBackup:null,changes:0,branches:Object.assign({},DEFAULT_ON)};
+  return {v:1,status:st,notes:{},videos:{},achieved:{T1:""},plan:null,theme:"night",lastBackup:null,changes:0,branches:Object.assign({},DEFAULT_ON)};
 }
 function load(){
   try{
@@ -243,7 +270,7 @@ function load(){
     S=raw?merge(JSON.parse(raw)):fresh();
   }catch(e){storageOK=false;S=fresh();document.getElementById("banner").classList.add("show")}
 }
-function merge(d){const f=fresh();const o=Object.assign(f,d);o.status=Object.assign(fresh().status,d.status||{});o.branches=Object.assign({},DEFAULT_ON,d.branches||{});return o}
+function merge(d){const f=fresh();const o=Object.assign(f,d);o.status=Object.assign(fresh().status,d.status||{});o.branches=Object.assign({},DEFAULT_ON,d.branches||{});if(!THEMES.some(t=>t.id===d.theme))o.theme=d.sun?"sun":"night";delete o.sun;return o}
 function save(change=true){
   if(change)S.changes=(S.changes||0)+1;
   if(!storageOK)return;
@@ -486,7 +513,7 @@ function renderPlan(){
 }
 document.getElementById("planBtn").onclick=()=>{renderPlan();document.getElementById("planSheet").classList.add("show")};
 
-// ───── Menu: sun mode + backup ─────
+// ───── Menu: theme + backup ─────
 function backupText(){return JSON.stringify({app:"snowboard-skill-tree",exported:new Date().toISOString(),data:S})}
 function markBackup(){S.lastBackup=today();S.changes=0;save(false);nudge()}
 function exportFile(){
@@ -499,7 +526,7 @@ async function copyBackup(){
   catch(e){const ta=document.getElementById("pasteIn");ta.value=backupText();ta.select();menuMsg("Couldn't copy automatically — the backup text is in the box below, copy it from there.")}
 }
 function importText(t){
-  try{const o=JSON.parse(t);const d=o.data||o;if(!d.status)throw 0;S=merge(d);save(false);renderTree();applySun();menuMsg("Backup restored ✓");return true}
+  try{const o=JSON.parse(t);const d=o.data||o;if(!d.status)throw 0;S=merge(d);save(false);renderTree();applyTheme();menuMsg("Backup restored ✓");return true}
   catch(e){menuMsg("That doesn't look like a valid backup.");return false}
 }
 function menuMsg(t){const m=document.getElementById("menuMsg");if(m)m.textContent=t}
@@ -539,7 +566,7 @@ function renderMenu(){
   const p=document.getElementById("menu");
   p.innerHTML=`<button class="close" data-close>✕</button><h2>Settings & backup</h2>
   <div class="card"><div class="toggle"><span><b>Branches</b><br><span class="muted">Show or hide tricks, park, backcountry and more</span></span><button class="btn" id="brM">Choose</button></div></div>
-  <div class="card"><div class="toggle"><span><b>Sun mode</b><br><span class="muted">High-contrast light theme for bright days</span></span><button class="btn" id="sunT">${S.sun?"On":"Off"}</button></div></div>
+  <div class="card"><h3>Theme</h3><div class="themes">${THEMES.map(t=>`<button data-theme="${t.id}" class="${S.theme===t.id?"on":""}" aria-pressed="${S.theme===t.id}"><span class="tsw" style="background:${t.sw}"></span>${t.name}</button>`).join("")}</div><p class="muted">Sun is the high-contrast one for bright days.</p></div>
   <div class="card"><h3>Backup</h3><p class="muted">Progress is saved on this phone. ${storageOK?"Saving is working ✓":"<b style='color:var(--danger)'>Saving is NOT working in this browser.</b>"} Last backup: ${S.lastBackup||"never"}.</p>
   <button class="btn wide" id="expB">Download backup file</button><div style="height:8px"></div>
   <button class="btn plain wide" id="cpB">Copy backup text</button></div>
@@ -549,13 +576,13 @@ function renderMenu(){
   <div class="card"><h3>Reset</h3><button class="btn plain wide" id="rst">Reset all progress</button><div id="rstC"></div></div>`;
   p.querySelector("[data-close]").onclick=closeAll;
   p.querySelector("#brM").onclick=()=>{document.getElementById("menuSheet").classList.remove("show");openBranches()};
-  p.querySelector("#sunT").onclick=()=>{S.sun=!S.sun;save(false);applySun();renderMenu()};
+  p.querySelectorAll("[data-theme]").forEach(b=>b.onclick=()=>{S.theme=b.dataset.theme;save(false);applyTheme();renderMenu()});
   p.querySelector("#expB").onclick=exportFile;
   p.querySelector("#cpB").onclick=copyBackup;
   p.querySelector("#impF").onclick=()=>document.getElementById("fileIn").click();
   p.querySelector("#impT").onclick=()=>importText(p.querySelector("#pasteIn").value);
   p.querySelector("#rst").onclick=()=>{p.querySelector("#rstC").innerHTML='<p>This deletes all statuses, notes and links. Back up first.</p><button class="btn wide" id="rstY" style="border-color:var(--danger);color:var(--danger)">Yes, reset everything</button>';
-    p.querySelector("#rstY").onclick=()=>{S=fresh();save(false);applySun();renderTree();renderMenu();menuMsg("Reset done.")}};
+    p.querySelector("#rstY").onclick=()=>{S=fresh();save(false);applyTheme();renderTree();renderMenu();menuMsg("Reset done.")}};
 }
 document.getElementById("fileIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importText(r.result);r.readAsText(f);e.target.value=""};
 document.getElementById("menuBtn").onclick=()=>{renderMenu();document.getElementById("menuSheet").classList.add("show")};
@@ -567,9 +594,18 @@ function nudge(){
   n.classList.toggle("show",show);
   document.getElementById("nudgeTxt").textContent=`${S.changes} change${S.changes===1?"":"s"} since your last backup.`;
 }
-function applySun(){document.body.classList.toggle("sun",!!S.sun);requestAnimationFrame(drawLines)}
+const THEMES=[
+  {id:"night",name:"Night",bar:"#0b0f1a",sw:"linear-gradient(135deg,#0b0f1a 55%,#ff5fd2 55%)"},
+  {id:"bluebird",name:"Bluebird",bar:"#8fd3ff",sw:"linear-gradient(#8fd3ff,#ffffff)"},
+  {id:"bubblegum",name:"Bubblegum",bar:"#ffd1e8",sw:"linear-gradient(135deg,#ffd1e8 55%,#d6177f 55%)"},
+  {id:"sun",name:"Sun",bar:"#ffffff",sw:"linear-gradient(135deg,#ffffff 55%,#000000 55%)"}];
+function applyTheme(){
+  const t=THEMES.find(x=>x.id===S.theme)||THEMES[0];
+  THEMES.forEach(x=>document.body.classList.toggle(x.id,x===t&&x.id!=="night"));
+  document.querySelector('meta[name="theme-color"]').setAttribute("content",t.bar);
+  requestAnimationFrame(drawLines)}
 
-load();applySun();renderTree();nudge();
+load();applyTheme();renderTree();nudge();
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 addEventListener("resize",()=>requestAnimationFrame(drawLines));
 // In focus mode, tapping anywhere that isn't a skill, the focus bar, a sheet or a button closes focus

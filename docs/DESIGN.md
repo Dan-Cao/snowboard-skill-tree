@@ -55,7 +55,8 @@ The main job is to **plan what to practise next**. Tracking progress comes secon
 
 ## UI decisions
 
-- **Look:** video-game styling (dark, glowing) but **readable in bright sun**. There's a high-contrast **Sun mode**.
+- **Look:** video-game styling (dark, glowing) but **readable in bright sun**.
+- **Themes** (☰ → Theme, saved as `theme`): **Night** (default, dark glow), **Bluebird** (sky blue, white cards), **Bubblegum** (candy pink, extra-round) and **Sun** (high contrast for bright days). Dan asked for fun options in Nov 2026. Every theme must keep Done/Learning/Next up/Locked clearly distinct. Old saves with `sun:true` load as the Sun theme.
 - **Layout:** straight lanes plus **focus mode**.
   - The always-on lines only join adjacent skills within a lane.
   - Tapping a skill highlights what it needs (pink) and what it unlocks (blue), and opens a bottom bar with status buttons.
