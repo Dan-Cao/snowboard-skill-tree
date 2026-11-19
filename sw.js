@@ -1,5 +1,5 @@
 // Bump VERSION on every content change so phones pick up the update.
-const VERSION="v2";
+const VERSION="v3";
 const FILES=["./","./index.html","./manifest.webmanifest","./icon-192.png","./icon-512.png"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(VERSION).then(c=>c.addAll(FILES)));self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==VERSION).map(x=>caches.delete(x)))));self.clients.claim()});

@@ -474,7 +474,8 @@ function applySun(){document.body.classList.toggle("sun",!!S.sun);requestAnimati
 load();applySun();renderTree();nudge();
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 addEventListener("resize",()=>requestAnimationFrame(drawLines));
-document.getElementById("tree").addEventListener("click",e=>{if(focus&&!e.target.closest(".node"))clearFocus()});
+// In focus mode, tapping anywhere that isn't a skill, the focus bar, a sheet or a button closes focus
+document.addEventListener("click",e=>{if(focus&&!e.target.closest(".node,#fbar,#sheet,#planSheet,#menuSheet,button,a,input,textarea"))clearFocus()});
 </script>
 </body>
 </html>
