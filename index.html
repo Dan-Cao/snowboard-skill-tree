@@ -80,6 +80,17 @@ button.lanehead.on{background:var(--bc);color:var(--bg)}
 .grid.g1 .node{justify-self:center;width:min(100%,340px)}
 .brrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:-2px 0 12px;font-size:14px;color:var(--muted)}
 .brrow button{min-height:44px;padding:0 14px;border-radius:12px;border:2px solid var(--accent);background:var(--panel);color:var(--accent);font-weight:800}
+.brlist .bri{background:var(--panel);border:2px solid var(--line);border-left:8px solid var(--bc);border-radius:14px;padding:10px 12px;margin:10px 0}
+.brlist .bri.on{border-color:var(--bc)}
+.bri .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.bri .top b{font-size:18px;color:var(--bc)}
+.bri .top button{min-height:48px;min-width:96px;border-radius:12px;border:2px solid var(--bc);background:var(--panel2);font-weight:800;color:var(--bc)}
+.bri .top button.on{background:var(--bc);color:var(--bg)}
+.bri p{margin:8px 0}
+.lvl{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin:6px 0}
+.lvl span{font-size:11.5px;font-weight:700;text-align:center;padding:4px 0;border-radius:6px;background:var(--panel2);color:var(--muted)}
+.lvl span.in{background:var(--bc);color:var(--bg)}
+.bri .hint{font-size:14px;color:var(--muted)}
 .brtog{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .brtog button{min-height:52px;border-radius:12px;border:2px solid var(--line);border-left:7px solid var(--bc);background:var(--panel);font-weight:800;text-align:left;padding:0 10px}
 .brtog button.on{background:var(--panel2);border-color:var(--bc)}
@@ -906,13 +917,35 @@ function importText(t){
   catch(e){menuMsg("That doesn't look like a valid backup.");return false}
 }
 function menuMsg(t){const m=document.getElementById("menuMsg");if(m)m.textContent=t}
+const BINFO={
+ ground:{d:"Tricks on the piste without jumps: ollies, presses, butters and spins. The lowest-risk way into freestyle, and it builds pop and balance for everything else.",lo:2,hi:3},
+ cross:{d:"Racing courses of banked turns (berms) and rollers. Builds carving, pumping and line choice at speed.",lo:2,hi:3},
+ carving:{d:"Clean turns on the edge with no skid, leaving pencil-line tracks. Builds speed, grip on hardpack and confidence on reds and blacks.",lo:2,hi:4},
+ freeride:{d:"Riding off the groomed piste: soft snow, moguls, powder, trees and steeps. True off-piste needs a guide and avalanche kit.",lo:2,hi:4},
+ jumps:{d:"Snowpark kickers: straight airs, grabs and spins, up to big jumps. Needs solid ollies and speed control first.",lo:2,hi:4},
+ rails:{d:"Sliding park features: boxes first, then rails, then spins on and off. Needs a confident flat base and ollies.",lo:2,hi:4},
+ pipe:{d:"Riding the walls of a halfpipe, pumping for speed, then airs. Needs strong turns on reds; pipes aren't built every season.",lo:3,hi:4},
+ backcountry:{d:"Beyond the lifts: avalanche skills, hiking and splitboard touring. Starts with an avalanche course anyone can take; the riding needs powder skills.",lo:3,hi:4},
+};
+const LEVELS=["Beginner","Intermediate","Advanced","Expert"];
+function levelBar(lo,hi){
+  return `<div class="lvl">${LEVELS.map((L,i)=>`<span class="${i+1>=lo&&i+1<=hi?"in":""}">${L}</span>`).join("")}</div>`;
+}
+function startHint(b){
+  const first=SKILLS.filter(s=>s.branch===b).find(s=>st(s.id)!=="done");
+  if(!first)return "All done ✓";
+  if(st(first.id)==="learning")return `Learning now: ${esc(sn(first.id))}`;
+  const miss=first.pre.filter(p=>st(p)!=="done");
+  return miss.length?`Starts with ${esc(sn(first.id))} — needs ${miss.map(p=>esc(sn(p))).join(", ")}`:`Starts with ${esc(sn(first.id))} — ready now`;
+}
 function openBranches(){renderBranches();document.getElementById("brSheet").classList.add("show")}
 function renderBranches(){
   const p=document.getElementById("brpanel");
   p.innerHTML=`<button class="close" data-close>✕</button><h2>Choose branches</h2>
-  <p class="muted">Core riding is always shown. Hidden branches keep your progress — they're just out of the way, and left out of Today's plan.</p>
-  <div class="brtog">${OPTIONAL.map(b=>{const all=SKILLS.filter(s=>s.branch===b),d=all.filter(s=>st(s.id)==="done").length;
-    return `<button class="b-${b} ${isOn(b)?"on":""}" data-b="${b}">${BRANCH[b]}<span class="x">${isOn(b)?"✓":"＋"}</span><br><span class="muted">${d}/${all.length} done</span></button>`}).join("")}</div>`;
+  <p class="muted">Core riding is always shown. Branches are listed from easiest to hardest to start; the bar shows the level range each one covers. Hidden branches keep your progress and are left out of Today's plan.</p>
+  <div class="brlist">${OPTIONAL.slice().sort((x,y)=>BINFO[x].lo-BINFO[y].lo||BINFO[x].hi-BINFO[y].hi).map(b=>{const all=SKILLS.filter(s=>s.branch===b),d=all.filter(s=>st(s.id)==="done").length,I=BINFO[b];
+    return `<div class="bri b-${b} ${isOn(b)?"on":""}"><div class="top"><div><b>${BRANCH[b]}</b><div class="muted">${all.length} skills · ${d} done</div></div><button data-b="${b}" class="${isOn(b)?"on":""}" aria-pressed="${isOn(b)}">${isOn(b)?"Shown ✓":"Show"}</button></div>
+    <p>${I.d}</p>${levelBar(I.lo,I.hi)}<div class="hint">${startHint(b)}</div></div>`}).join("")}</div>`;
   p.querySelector("[data-close]").onclick=closeAll;
   p.querySelectorAll("[data-b]").forEach(x=>x.onclick=()=>{S.branches[x.dataset.b]=!isOn(x.dataset.b);if(hl&&!isOn(hl))hl=null;if(focus&&!shown(byId[focus])){focus=null;document.getElementById("fbar").classList.remove("show");document.body.classList.remove("hasbar")}save(false);renderBranches();renderTree()});
 }
