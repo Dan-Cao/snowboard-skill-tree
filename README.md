@@ -1,4 +1,4 @@
-# Snowboard Skill Tree
+# On Edge – Snowboard Skill Tree
 
 Personal snowboarding progression tree (core riding, carving, freeride) with drills, done-when tests, a session planner and on-device progress tracking. Installable offline PWA.
 
