@@ -20,6 +20,7 @@ The main job is to **plan what to practise next**. Tracking progress comes secon
 - **Teaching standard:** order and terminology follow how **BASI** (British Association of Snowsports Instructors) teaches: basic → skidded → carved/dynamic turns, with edge, pivot and pressure language (e.g. "progressive edging"). BASI's Central Theme manual isn't public, so reviews have checked against general BASI practice.
 - **No Hemel level tags.** Skills used to carry a loose "≈ Hemel 6" / "Beyond Hemel" tag. Removed in Nov 2026 because Dan has worked through the Hemel levels, so they no longer help.
 - **Every skill has:**
+  - `pp` (optional): links to Progresspedia guides (progresspedia.org/courses/snowboarding/) as `[title, slug]`, shown under "Progresspedia guides" in the details sheet. Only link a page whose content really covers the skill; leave it out otherwise. The card notes that guides need signal and may describe a regular stance.
   - `desc`: one plain line (about 110 characters max) saying what the skill is. No left/right in it.
   - `test`: a measurable done-when test, using a rep count and/or a terrain grade or feature size (e.g. "10 linked turns on a red", "small kicker, table up to 4 m"). Avoid vague tests like "feels good" or "the steepest blue you know".
   - `drills`

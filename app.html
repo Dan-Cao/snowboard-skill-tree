@@ -171,6 +171,10 @@ body.hasbar .wrap{padding-bottom:calc(var(--barH,190px) + 16px)}
 .close{position:absolute;top:10px;right:10px;width:48px;height:48px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-size:22px;font-weight:800}
 .sub{color:var(--muted);font-size:14px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:6px}
 .desc{margin:0 0 12px;font-size:16px}
+.ext{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.ext a{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:var(--panel2);color:var(--text);font-weight:700;text-decoration:none}
+.ext a span{color:var(--accent)}
+.card .ext+p.muted{margin:8px 0 0;font-size:13px}
 .status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
 .status button{min-height:58px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-weight:800;font-size:16px}
 .status button.on[data-s=locked]{border-color:var(--lock);background:var(--panel2)}
@@ -451,6 +455,7 @@ function renderDetail(msg=""){
   <div class="card test"><h3>Done when</h3>${esc(s.test)}</div>
   <div class="card"><h3>Drills</h3>${list(s.drills)}</div>
   <div class="card"><h3>Common mistakes</h3>${list(s.mistakes)}</div>
+  ${s.pp&&s.pp.length?`<div class="card"><h3>Progresspedia guides</h3><div class="ext">${s.pp.map(([t,u])=>`<a href="https://progresspedia.org/courses/snowboarding/${esc(u)}/" target="_blank" rel="noopener">${esc(t)} <span aria-hidden="true">↗</span></a>`).join("")}</div><p class="muted">Needs signal. Guides may describe a regular stance; mirror left and right for goofy.</p></div>`:""}
   ${s.safety?`<div class="card safety"><h3>Safety</h3>${esc(s.safety)}</div>`:""}
   <div class="card"><h3>Tignes & Val d'Isère</h3>${esc(s.area)}</div>
   ${s.pre.length?`<div class="card"><h3>Needs</h3><div class="pre">${s.pre.map(p=>`<button data-go="${p}">${st(p)==="done"?"✓ ":""}${esc(sn(p))}${shown(byId[p])?"":" (hidden)"}</button>`).join("")}</div></div>`:""}
