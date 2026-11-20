@@ -317,7 +317,7 @@ function chips(s){
 const SHORT={T1:"Skidded turns · blue",T2:"Turn shape",T3:"Grippy turns · blue",T4:"Flat-base glide",T5:"Skating",T6:"Cat tracks",T7:"Short turns",T8:"Steeper blues",T9:"Hardpack & ice",T10:"Switch turns",T11:"Skidded turns · red",T12:"Grippy turns · red",T13:"Hockey stops",T14:"Rollers & chop",T15:"Switch · red",T16:"Groomed blacks",T17:"Sideslip · red",
  C1:"Railroad tracks",C2:"First linked carves",C3:"Carving · blue",C4:"Carving · red",C5:"Edge angles",C6:"Dynamic turns",C7:"Turn radius",C8:"Switch carving",C9:"Carving at speed",C10:"Euro carves",
  F1:"Piste-edge soft snow",F2:"Small moguls",F3:"Powder",F4:"Tracked snow",F5:"Trees",F6:"Steep off-piste",F7:"Small drops",F8:"Chutes",F9:"Big-mountain lines"};
-const TRUNK_SECTION={title:"Core riding",root:"T1",lanes:[["Turns",["T3","T8","T17","T11","T12","T16"]],["Speed control",["T2","T7","T13","T9"]],["Terrain & switch",["T4","T5","T6","T14","T10","T15"]]]};
+const TRUNK_SECTION={title:"Core riding",root:"T1",lanes:[["Turns",["T3","T8","T17","T11","T12","T16"]],["Speed control",["T2","T13","T7","T9"]],["Terrain & switch",["T5","T4","T6","T14","T10","T15"]]]};
 function sections(){
   const act=OPTIONAL.filter(isOn), out=[TRUNK_SECTION];
   for(let i=0;i<act.length;i+=2){

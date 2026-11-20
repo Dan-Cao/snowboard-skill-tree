@@ -18,7 +18,7 @@ const SKILLS = [
   mistakes:["Turns that are just quick flicks across the fall line — speed builds every turn.","Using a hard back-foot skid to brake instead of finishing the turn.","Looking at your board; look two turns ahead down the slope."],
   area:"Long blue H piste down into Val Claret is a good place to practise holding a steady speed." },
 
-{ id:"T4", branch:"trunk", row:2, col:1, name:"Flat-base gliding", desc:"Running the board flat on the flats so neither edge catches and you keep your speed.", pp:[["Avoiding edge catches", "avoiding-edge-catches"]], tag:"solo", pre:["T1"], weak:"flats",
+{ id:"T4", branch:"trunk", row:3, col:1, name:"Flat-base gliding", desc:"Running the board flat on the flats so neither edge catches and you keep your speed.", pp:[["Avoiding edge catches", "avoiding-edge-catches"]], tag:"solo", pre:["T1"], weak:"flats",
   test:"Glide 50 m across a near-flat section on a flat base without catching an edge or stopping.",
   drills:["Straight glide on a gentle runout: knees soft, weight centred, board totally flat.","Tiny 'tilt and return' — roll a few degrees onto each edge and back to flat while gliding.","Look at the exit of the flat, not your feet."],
   mistakes:["Being on an edge without noticing — it acts as a brake (or catches).","Stiff legs: any bump pushes you onto an edge."],
@@ -30,13 +30,13 @@ const SKILLS = [
   mistakes:["Kicking the tail round with the left (back) foot — that's a skid, not a grip.","Heelside: keep hips over the board and knees bent — don't fold at the waist towards the hill."],
   area:"Gentle blues off the Palafour and Chaudannes lifts." },
 
-{ id:"T5", branch:"trunk", row:3, col:1, name:"Skating & one-foot gliding", desc:"Pushing along with your back foot out of the binding, then gliding with it on the stomp pad.", pp:[["Skating with one foot strapped in", "skating-and-one-foot"]], tag:"solo", pre:["T4"], weak:"flats",
+{ id:"T5", branch:"trunk", row:2, col:1, name:"Skating & one-foot gliding", desc:"Pushing along with your back foot out of the binding, then gliding with it on the stomp pad.", pp:[["Skating with one foot strapped in", "skating-and-one-foot"]], tag:"solo", pre:["T1"], weak:"flats",
   test:"Skate 30 m on the flat with the left (back) foot free, then glide 10 m with the free foot on the stomp pad.",
   drills:["Skate with short pushes on the toe side of the board, then rest the back foot on the stomp pad and glide.","Practise getting off chairlifts one-footed on purpose.","Small one-footed 'J' turn to a stop on a very gentle slope."],
   mistakes:["Long pushes far from the board make it swing sideways.","Weight on the free foot instead of the strapped-in right (front) foot."],
   area:"Practise on the free nursery areas in Le Lac or Val Claret." },
 
-{ id:"T7", branch:"trunk", row:4, col:0, name:"Short-radius skidded turns", desc:"Quick, rhythmic skidded turns in a narrow corridor. Your go-to for busy or steeper pistes.", pp:[["Dynamic short-radius turns", "dynamic-short-turns"]], tag:"either", pre:["T2"], weak:"speed",
+{ id:"T7", branch:"trunk", row:4, col:0, name:"Short-radius skidded turns", desc:"Quick, rhythmic skidded turns in a narrow corridor. Your go-to for busy or steeper pistes.", pp:[["Dynamic short-radius turns", "dynamic-short-turns"]], tag:"either", pre:["T2","T13"], weak:"speed",
   test:"20 short, rhythmic skidded turns in a corridor about 2 board-lengths wide on a blue, at constant speed.",
   drills:["Shrink the corridor: start wide, halve the width every run.","Count the edge changes out loud to a steady beat.","Pivot the board with both legs quickly while staying low."],
   mistakes:["Upper body rotating with every turn — keep shoulders roughly in line with the board and steer with your legs.","Getting tall and stiff: short turns need active, bending knees."],
@@ -78,7 +78,7 @@ const SKILLS = [
   mistakes:["Gripping hard at the start and skidding at the end of the turn.","Toeside turns (to your left) getting longer than heelside — keep them even."],
   area:"Tignes's long cruising reds — check the piste map for those around the Palet/Aiguille Percée sector." },
 
-{ id:"T13", branch:"trunk", row:6, col:0, name:"Hockey stops & speed checks", desc:"Fast, sharp stops on either edge, and quick speed checks without fully stopping.", pp:[["Hockey stops", "hockey-stops"]], tag:"either", pre:["T7"], weak:"speed",
+{ id:"T13", branch:"trunk", row:3, col:0, name:"Hockey stops & speed checks", desc:"Fast, sharp stops on either edge, and quick speed checks without fully stopping.", pp:[["Hockey stops", "hockey-stops"]], tag:"either", pre:["T2"], weak:"speed",
   test:"From medium speed on a blue, hockey-stop within 3 board-lengths on each edge, 5 times each.",
   drills:["Hockey stops: on the heel edge, then the toe edge.","Speed check without fully stopping, then carry on turning.","Practise on a clear, wide slope with nobody below you; repeat on a red once T11 is solid."],
   mistakes:["Swinging the tail round with the left (back) foot only — use both feet.","Edge too high and catching on the toe side."],
