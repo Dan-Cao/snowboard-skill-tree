@@ -14,6 +14,7 @@
   --done:#3dff8f; --learn:#ffd23d; --next:#3ad7ff; --lock:#8b95ab; --accent:#ff5fd2; --danger:#ff6b6b;
   --doneBg:rgba(61,255,143,.14); --learnBg:rgba(255,210,61,.14); --nextBg:rgba(58,215,255,.12);
   --shadow:0 0 14px;
+  --b-found:#b9c2d3; --t-found:rgba(185,194,211,.09);
   --b-trunk:#e8ecf5; --b-carving:#ff9a3c; --b-freeride:#b48cff;
   --t-carving:rgba(255,154,60,.10); --t-freeride:rgba(180,140,255,.11);
   --b-ground:#33d6b0; --t-ground:rgba(51,214,176,.10); --b-jumps:#ff7a7a; --t-jumps:rgba(255,122,122,.10); --b-rails:#d9b382; --t-rails:rgba(217,179,130,.11); --b-pipe:#9fb6d6; --t-pipe:rgba(159,182,214,.12); --b-backcountry:#a9c96b; --t-backcountry:rgba(169,201,107,.11); --b-cross:#ff8fd0; --t-cross:rgba(255,143,208,.10);
@@ -53,6 +54,7 @@ body.slate{
   --b-trunk:#1f2a36; --b-carving:#b95a1e; --b-freeride:#6450b0; --t-carving:#f8efe8; --t-freeride:#efecf8;
   --b-ground:#00775f; --t-ground:#eef7f4; --b-jumps:#b3261e; --t-jumps:#fbefee; --b-rails:#7a5520; --t-rails:#f7f1e8; --b-pipe:#3a5578; --t-pipe:#eef2f7; --b-backcountry:#4c6b14; --t-backcountry:#f1f5e9; --b-cross:#a3156e; --t-cross:#faeef5;
 }
+body.sun,body.bluebird,body.bubblegum,body.paper,body.slate{--b-found:#5d6b80;--t-found:#eef1f5}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.4}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -149,6 +151,7 @@ button.on .sw::after{left:29px;background:var(--bg)}
 .node.f-pre{outline:3px solid var(--accent);outline-offset:2px}
 .node.f-post{outline:3px dashed var(--next);outline-offset:2px}
 .secgap{height:30px}
+.b-found{--bc:var(--b-found)}
 #fbar{position:fixed;left:0;right:0;bottom:0;z-index:15;display:none;background:var(--bg);border-top:3px solid var(--text);padding:10px 12px 14px;max-width:760px;margin:0 auto}
 #fbar.show{display:block}
 #fbar .t{font-weight:800;font-size:17px;margin-right:52px}
@@ -171,6 +174,10 @@ body.hasbar .wrap{padding-bottom:calc(var(--barH,190px) + 16px)}
 .close{position:absolute;top:10px;right:10px;width:48px;height:48px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-size:22px;font-weight:800}
 .sub{color:var(--muted);font-size:14px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:6px}
 .desc{margin:0 0 12px;font-size:16px}
+.ext{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.ext a{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:var(--panel2);color:var(--text);font-weight:700;text-decoration:none}
+.ext a span{color:var(--accent)}
+.card .ext+p.muted{margin:8px 0 0;font-size:13px}
 .status{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
 .status button{min-height:58px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-weight:800;font-size:16px}
 .status button.on[data-s=locked]{border-color:var(--lock);background:var(--panel2)}
@@ -267,7 +274,7 @@ body.paper .prog,body.slate .prog{border-top-width:3px}
 </script>
 <script>
 const KEY="sbtree.v1";
-const BRANCH={trunk:"Core riding",carving:"Carving",freeride:"Freeride",ground:"Ground tricks",jumps:"Jumps",rails:"Rails & boxes",pipe:"Halfpipe",backcountry:"Backcountry",cross:"Boardercross"};
+const BRANCH={found:"Foundations",trunk:"Core riding",carving:"Carving",freeride:"Freeride",ground:"Ground tricks",jumps:"Jumps",rails:"Rails & boxes",pipe:"Halfpipe",backcountry:"Backcountry",cross:"Boardercross"};
 const OPTIONAL=Object.keys(BRANCH).filter(b=>b!=="trunk");
 const DEFAULT_ON={carving:true,freeride:true};
 const sn=id=>(typeof SHORT!=="undefined"&&SHORT[id])||byId[id].name;
@@ -289,7 +296,7 @@ function load(){
     S=raw?merge(JSON.parse(raw)):fresh();
   }catch(e){storageOK=false;S=fresh();document.getElementById("banner").classList.add("show")}
 }
-function merge(d){const f=fresh();const o=Object.assign(f,d);o.status=Object.assign(fresh().status,d.status||{});o.branches=Object.assign({},DEFAULT_ON,d.branches||{});if(!THEMES.some(t=>t.id===d.theme))o.theme=d.sun?"sun":"night";delete o.sun;return o}
+function merge(d){const f=fresh();const o=Object.assign(f,d);o.status=Object.assign(fresh().status,d.status||{});o.branches=Object.assign({},DEFAULT_ON,d.branches||{});if(d.foundOpen&&!(d.branches||{}).hasOwnProperty("found"))o.branches.found=true;delete o.foundOpen;if(!THEMES.some(t=>t.id===d.theme))o.theme=d.sun?"sun":"night";delete o.sun;return o}
 function save(change=true){
   if(change)S.changes=(S.changes||0)+1;
   if(!storageOK)return;
@@ -310,14 +317,16 @@ function chips(s){
   if(s.tag==="lesson")h+='<span class="chip">🎓</span>';
   return h;
 }
-const SHORT={T1:"Skidded turns · blue",T2:"Turn shape",T3:"Grippy turns · blue",T4:"Flat-base glide",T5:"Skating",T6:"Cat tracks",T7:"Short turns",T8:"Steeper blues",T9:"Hardpack & ice",T10:"Switch turns",T11:"Skidded turns · red",T12:"Grippy turns · red",T13:"Hockey stops",T14:"Rollers & chop",T15:"Switch · red",T16:"Groomed blacks",T17:"Sideslip · red",
+const SHORT={S1:"Heel sideslip",S2:"Falling leaf",S3:"Single turns",S4:"Button lift",S5:"Linking turns",T1:"Skidded turns · blue",T2:"Turn shape",T3:"Grippy turns · blue",T4:"Flat-base glide",T5:"Skating",T6:"Cat tracks",T7:"Short turns",T8:"Steeper blues",T9:"Hardpack & ice",T10:"Switch turns",T11:"Skidded turns · red",T12:"Grippy turns · red",T13:"Hockey stops",T14:"Rollers & chop",T15:"Switch · red",T16:"Groomed blacks",T17:"Sideslip · red",
  C1:"Railroad tracks",C2:"First linked carves",C3:"Carving · blue",C4:"Carving · red",C5:"Edge angles",C6:"Dynamic turns",C7:"Turn radius",C8:"Switch carving",C9:"Carving at speed",C10:"Euro carves",
  F1:"Piste-edge soft snow",F2:"Small moguls",F3:"Powder",F4:"Tracked snow",F5:"Trees",F6:"Steep off-piste",F7:"Small drops",F8:"Chutes",F9:"Big-mountain lines"};
-const TRUNK_SECTION={title:"Core riding",root:"T1",lanes:[["Turns",["T3","T8","T17","T11","T12","T16"]],["Speed control",["T2","T7","T13","T9"]],["Terrain & switch",["T4","T5","T6","T14","T10","T15"]]]};
+const TRUNK_SECTION={title:"Core riding",root:"T1",lanes:[["Turns",["T3","T8","T17","T11","T12","T16"]],["Speed control",["T2","T13","T7","T9"]],["Terrain & switch",["T5","T4","T6","T14","T10","T15"]]]};
 function sections(){
-  const act=OPTIONAL.filter(isOn), out=[TRUNK_SECTION];
+  // Foundations come before core riding (T1 builds on them); other branches pair up below it
+  const sec=bs=>({lanes:bs.map(b=>[BRANCH[b],SKILLS.filter(s=>s.branch===b).map(s=>s.id)]),branches:bs});
+  const act=OPTIONAL.filter(b=>b!=="found"&&isOn(b)), out=[...(isOn("found")?[sec(["found"])]:[]),TRUNK_SECTION];
   for(let i=0;i<act.length;i+=2){
-    out.push({lanes:act.slice(i,i+2).map(b=>[BRANCH[b],SKILLS.filter(s=>s.branch===b).map(s=>s.id)]),branches:act.slice(i,i+2)});
+    out.push(sec(act.slice(i,i+2)));
   }
   return out;
 }
@@ -384,7 +393,7 @@ function renderProgress(){
   const P=document.getElementById("progress");P.innerHTML=h;
   const act=OPTIONAL.filter(isOn);
 
-  document.getElementById("brlegend").innerHTML=["trunk",...act].map(b=>`<b style="color:var(--b-${b})">▌${b==="trunk"?"Core":BRANCH[b]}</b>`).join(" ")+' <button id="brEdit" class="cog" aria-label="Choose branches" title="Choose branches">⚙</button>';
+  document.getElementById("brlegend").innerHTML=[...act.filter(b=>b==="found"),"trunk",...act.filter(b=>b!=="found")].map(b=>`<b style="color:var(--b-${b})">▌${b==="trunk"?"Core":BRANCH[b]}</b>`).join(" ")+' <button id="brEdit" class="cog" aria-label="Choose branches" title="Choose branches">⚙</button>';
   document.getElementById("brEdit").onclick=openBranches;P.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>toggleHl(b.dataset.hl));
 }
 function markFocus(){
@@ -451,6 +460,7 @@ function renderDetail(msg=""){
   <div class="card test"><h3>Done when</h3>${esc(s.test)}</div>
   <div class="card"><h3>Drills</h3>${list(s.drills)}</div>
   <div class="card"><h3>Common mistakes</h3>${list(s.mistakes)}</div>
+  ${s.pp&&s.pp.length?`<div class="card"><h3>Progresspedia guides</h3><div class="ext">${s.pp.map(([t,u])=>`<a href="https://progresspedia.org/courses/snowboarding/${esc(u)}/" target="_blank" rel="noopener">${esc(t)} <span aria-hidden="true">↗</span></a>`).join("")}</div><p class="muted">Needs signal. Guides may describe a regular stance; mirror left and right for goofy.</p></div>`:""}
   ${s.safety?`<div class="card safety"><h3>Safety</h3>${esc(s.safety)}</div>`:""}
   <div class="card"><h3>Tignes & Val d'Isère</h3>${esc(s.area)}</div>
   ${s.pre.length?`<div class="card"><h3>Needs</h3><div class="pre">${s.pre.map(p=>`<button data-go="${p}">${st(p)==="done"?"✓ ":""}${esc(sn(p))}${shown(byId[p])?"":" (hidden)"}</button>`).join("")}</div></div>`:""}
@@ -551,6 +561,7 @@ function importText(t){
 }
 function menuMsg(t){const m=document.getElementById("menuMsg");if(m)m.textContent=t}
 const BINFO={
+ found:{d:"Hemel stages 1–4, already done: sideslip, falling leaf, single turns, button lift and linking turns. Show it to look back at the basics.",lo:1,hi:1},
  ground:{d:"Tricks on the piste without jumps: ollies, presses, butters and spins. The lowest-risk way into freestyle, and it builds pop and balance for everything else.",lo:2,hi:3},
  cross:{d:"Racing courses of banked turns (berms) and rollers. Builds carving, pumping and line choice at speed.",lo:2,hi:3},
  carving:{d:"Clean turns on the edge with no skid, leaving pencil-line tracks. Builds speed, grip on hardpack and confidence on reds and blacks.",lo:2,hi:4},

@@ -20,6 +20,7 @@ The main job is to **plan what to practise next**. Tracking progress comes secon
 - **Teaching standard:** order and terminology follow how **BASI** (British Association of Snowsports Instructors) teaches: basic → skidded → carved/dynamic turns, with edge, pivot and pressure language (e.g. "progressive edging"). BASI's Central Theme manual isn't public, so reviews have checked against general BASI practice.
 - **No Hemel level tags.** Skills used to carry a loose "≈ Hemel 6" / "Beyond Hemel" tag. Removed in Nov 2026 because Dan has worked through the Hemel levels, so they no longer help.
 - **Every skill has:**
+  - `pp` (optional): links to Progresspedia guides (progresspedia.org/courses/snowboarding/) as `[title, slug]`, shown under "Progresspedia guides" in the details sheet. Only link a page whose content really covers the skill; leave it out otherwise. The card notes that guides need signal and may describe a regular stance.
   - `desc`: one plain line (about 110 characters max) saying what the skill is. No left/right in it.
   - `test`: a measurable done-when test, using a rep count and/or a terrain grade or feature size (e.g. "10 linked turns on a red", "small kicker, table up to 4 m"). Avoid vague tests like "feels good" or "the steepest blue you know".
   - `drills`
@@ -38,8 +39,11 @@ The main job is to **plan what to practise next**. Tracking progress comes secon
 ## Structure
 
 - **Core riding** (`trunk`) is always shown. It starts from the root skill T1 and splits into three lanes: **Turns**, **Speed control**, and **Terrain & switch**. Switch is folded into core riding rather than being its own branch.
+- **Early core order follows Hemel's levels 1–5** (Nov 2026, Dan's call after comparing with Hemel and Progresspedia): hockey stops (T13) come straight after turn-shape speed control (T2) and before short turns (T7), because Hemel teaches stopping safely in stage 5 and Progresspedia builds short turns on hockey stops. Skating & one-foot (T5, a Hemel stage 1 skill) needs only T1 and comes before flat-base gliding (T4).
+- **Foundations** (`found`, S1–S5) record Hemel stages 1–4 (heel sideslip, falling leaf, single turns, button lift, linking turns with traverses). It is an ordinary branch with its own switch in the branch chooser, **off by default**; when shown it sits above core riding because T1 needs S5. Its skills start as done. Added Nov 2026 at Dan's request (an earlier fold-out row was replaced by the switch).
 - **Optional branches** can be toggled in ☰ → Branches or with the ⚙ next to the legend:
   - Carving and Freeride: on by default, both go all the way to expert.
+  - Foundations: off by default.
   - Ground tricks, Jumps, Rails & boxes, Halfpipe, Backcountry, Boardercross: off by default.
 - Each branch in `BINFO` (app.html) has a short description and a level range (1 Beginner – 4 Expert). The chooser sorts branches from easiest to hardest to start.
 - **Prerequisites are soft.** Everything can be ticked. A skill whose prerequisites are all done shows as "Next up".

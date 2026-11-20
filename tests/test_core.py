@@ -45,6 +45,13 @@ async def main():
             await pg.click("#menuBtn"); await pg.click(f"[data-theme={th}]"); await pg.click("#menuSheet [data-close]"); await pg.screenshot(path=f"{OUT}/cover_{th}.png")
         await pg.reload(); print("theme persists:",await pg.evaluate("S.theme"),await pg.evaluate("document.body.className"))
         await pg.evaluate("localStorage.setItem('sbtree.v1',JSON.stringify(Object.assign(JSON.parse(localStorage.getItem('sbtree.v1')),{sun:true,theme:undefined})))"); await pg.reload(); print("old sun save ->",await pg.evaluate("S.theme"))
+        # Foundations: a normal branch, off by default, all done, toggled in the branch chooser
+        print("found statuses:",await pg.evaluate("['S1','S2','S3','S4','S5'].map(i=>st(i)).join(',')"),"T1 needs:",await pg.evaluate("byId.T1.pre.join(',')"),"cards:",await pg.evaluate("document.querySelectorAll('.node.b-found').length"))
+        await pg.click("#brEdit"); await pg.click('[data-b="found"]'); await pg.click("#brSheet [data-close]")
+        first=await pg.evaluate("document.querySelector('.lanes .node').dataset.id"); await pg.reload()
+        print("found on: cards",await pg.evaluate("document.querySelectorAll('.node.b-found').length"),"first card:",first,"tile:",await pg.evaluate("!!document.querySelector('.prog.b-found')"),"persists:",await pg.evaluate("S.branches.found"))
+        await pg.evaluate("localStorage.setItem('sbtree.v1',JSON.stringify(Object.assign(JSON.parse(localStorage.getItem('sbtree.v1')),{foundOpen:true,branches:{carving:true,freeride:true}})))"); await pg.reload()
+        print("old foundOpen save -> found on:",await pg.evaluate("S.branches.found"),"foundOpen gone:",await pg.evaluate("!('foundOpen' in S)"))
         print("errs",errs)
       await ctx.close()
     await b.close()
