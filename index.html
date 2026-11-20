@@ -73,7 +73,8 @@ header h1{font-size:18px;margin:0;flex:1;letter-spacing:.5px;text-transform:uppe
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px;border:2px solid}
 .progress{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px;margin-bottom:12px}
 .prog{background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--bc);border-radius:12px;padding:8px 10px;text-align:left;min-height:64px}
-.prog.on{outline:3px solid var(--bc);outline-offset:2px}
+.prog.off{opacity:.55;border-style:dashed;border-top-style:solid}
+.prog .hid{font-size:12px;font-weight:700;color:var(--muted);margin-left:6px;text-transform:uppercase;letter-spacing:.4px}
 .prog .t{font-size:13px;color:var(--bc);font-weight:800;text-transform:uppercase;letter-spacing:.5px}
 .prog .n{font-size:20px;font-weight:800}
 .bar{height:6px;background:var(--panel2);border-radius:3px;margin-top:4px;overflow:hidden}
@@ -724,6 +725,8 @@ const DEFAULT_ON={carving:true,freeride:true};
 const sn=id=>(typeof SHORT!=="undefined"&&SHORT[id])||byId[id].name;
 const isOn=b=>b==="trunk"||!!(S.branches||{})[b];
 const shown=s=>isOn(s.branch);
+// Tiles hide a branch from the main screen only; Today's plan still uses every switched-on branch
+const visible=b=>isOn(b)&&!(S.hidden||{})[b];
 const WEAK={speed:"Speed control on steeper pitches",flats:"Getting stuck on flats"};
 const byId={}; SKILLS.forEach(s=>byId[s.id]=s);
 let storageOK=true, S;
@@ -731,7 +734,7 @@ let storageOK=true, S;
 function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function fresh(){
   const st={}; SKILLS.forEach(s=>st[s.id]=s.start||"locked"); st.T1="done";
-  return {v:1,status:st,notes:{},videos:{},achieved:{T1:""},plan:null,theme:"night",lastBackup:null,changes:0,branches:Object.assign({},DEFAULT_ON)};
+  return {v:1,status:st,notes:{},videos:{},achieved:{T1:""},plan:null,theme:"night",hidden:{},lastBackup:null,changes:0,branches:Object.assign({},DEFAULT_ON)};
 }
 function load(){
   try{
@@ -740,7 +743,7 @@ function load(){
     S=raw?merge(JSON.parse(raw)):fresh();
   }catch(e){storageOK=false;S=fresh();document.getElementById("banner").classList.add("show")}
 }
-function merge(d){const f=fresh();const o=Object.assign(f,d);o.status=Object.assign(fresh().status,d.status||{});o.branches=Object.assign({},DEFAULT_ON,d.branches||{});if(d.foundOpen&&!(d.branches||{}).hasOwnProperty("found"))o.branches.found=true;delete o.foundOpen;if(!THEMES.some(t=>t.id===d.theme))o.theme=d.sun?"sun":"night";delete o.sun;return o}
+function merge(d){const f=fresh();const o=Object.assign(f,d);o.status=Object.assign(fresh().status,d.status||{});o.branches=Object.assign({},DEFAULT_ON,d.branches||{});o.hidden=Object.assign({},d.hidden||{});if(d.foundOpen&&!(d.branches||{}).hasOwnProperty("found"))o.branches.found=true;delete o.foundOpen;if(!THEMES.some(t=>t.id===d.theme))o.theme=d.sun?"sun":"night";delete o.sun;return o}
 function save(change=true){
   if(change)S.changes=(S.changes||0)+1;
   if(!storageOK)return;
@@ -768,7 +771,7 @@ const TRUNK_SECTION={title:"Core riding",root:"T1",lanes:[["Turns",["T3","T8","T
 function sections(){
   // Foundations come before core riding (T1 builds on them); other branches pair up below it
   const sec=bs=>({lanes:bs.map(b=>[BRANCH[b],SKILLS.filter(s=>s.branch===b).map(s=>s.id)]),branches:bs});
-  const act=OPTIONAL.filter(b=>b!=="found"&&isOn(b)), out=[...(isOn("found")?[sec(["found"])]:[]),TRUNK_SECTION];
+  const act=OPTIONAL.filter(b=>b!=="found"&&visible(b)), out=[...(visible("found")?[sec(["found"])]:[]),...(visible("trunk")?[TRUNK_SECTION]:[])];
   for(let i=0;i<act.length;i+=2){
     out.push(sec(act.slice(i,i+2)));
   }
@@ -776,6 +779,12 @@ function sections(){
 }
 const UNLOCKS={}; SKILLS.forEach(s=>s.pre.forEach(p=>(UNLOCKS[p]=UNLOCKS[p]||[]).push(s.id)));
 let focus=null, hl=null;
+function toggleVis(br){
+  S.hidden=S.hidden||{}; if(S.hidden[br])delete S.hidden[br]; else S.hidden[br]=true;
+  if(hl&&!visible(hl))hl=null;
+  if(focus&&!visible(byId[focus].branch))clearFocus();
+  save(false); renderTree();
+}
 function toggleHl(br){
   if(focus){focus=null;document.getElementById("fbar").classList.remove("show");document.body.classList.remove("hasbar")}
   hl=hl===br?null:br; renderTree();
@@ -833,12 +842,12 @@ function renderTree(){
 function renderProgress(){
   let h="";
   for(const b in BRANCH){if(!isOn(b))continue;const all=SKILLS.filter(s=>s.branch===b);const d=all.filter(s=>st(s.id)==="done").length;
-    h+=`<button class="prog b-${b} ${hl===b?"on":""}" data-hl="${b}"><div class="t">${BRANCH[b]}</div><div class="n">${d}/${all.length}</div><div class="bar"><i style="width:${Math.round(d/all.length*100)}%"></i></div></button>`}
+    h+=`<button class="prog b-${b} ${visible(b)?"":"off"}" data-vis="${b}" aria-pressed="${visible(b)}" aria-label="${visible(b)?"Hide":"Show"} ${BRANCH[b]}"><div class="t">${BRANCH[b]}</div><div class="n">${d}/${all.length}${visible(b)?"":'<span class="hid">hidden</span>'}</div><div class="bar"><i style="width:${Math.round(d/all.length*100)}%"></i></div></button>`}
   const P=document.getElementById("progress");P.innerHTML=h;
   const act=OPTIONAL.filter(isOn);
 
   document.getElementById("brlegend").innerHTML=[...act.filter(b=>b==="found"),"trunk",...act.filter(b=>b!=="found")].map(b=>`<b style="color:var(--b-${b})">▌${b==="trunk"?"Core":BRANCH[b]}</b>`).join(" ")+' <button id="brEdit" class="cog" aria-label="Choose branches" title="Choose branches">⚙</button>';
-  document.getElementById("brEdit").onclick=openBranches;P.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>toggleHl(b.dataset.hl));
+  document.getElementById("brEdit").onclick=openBranches;P.querySelectorAll("[data-vis]").forEach(t=>t.onclick=()=>toggleVis(t.dataset.vis));
 }
 function markFocus(){
   const t=document.getElementById("tree"),s=byId[focus];
@@ -855,7 +864,7 @@ function tapNode(id){
 function clearFocus(){focus=null;document.getElementById("fbar").classList.remove("show");document.body.classList.remove("hasbar");renderTree()}
 function renderBar(){
   const s=byId[focus],x=st(s.id),b=document.getElementById("fbar");
-  const nm=a=>a.map(i=>esc(sn(i))+(shown(byId[i])?"":" (hidden)")).join(", ")||"—";
+  const nm=a=>a.map(i=>esc(sn(i))+(visible(byId[i].branch)?"":" (hidden)")).join(", ")||"—";
   b.innerHTML=`<button class="close" id="fx" aria-label="Clear focus">✕</button><div class="t">${esc(s.name)}</div>${s.desc?`<div class="d">${esc(s.desc)}</div>`:""}
   <div class="k"><b>Needs:</b> ${nm(s.pre)} · <i>Unlocks:</i> ${nm(UNLOCKS[s.id]||[])}</div>
   <div class="row">${["locked","learning","done"].map(k=>`<button data-s="${k}" class="${x===k?"on":""}">${k==="locked"?"Locked":k==="learning"?"Learning":"Done ✓"}</button>`).join("")}<button class="det" id="fdet">Details</button></div>`;
@@ -907,8 +916,8 @@ function renderDetail(msg=""){
   ${s.pp&&s.pp.length?`<div class="card"><h3>Progresspedia guides</h3><div class="ext">${s.pp.map(([t,u])=>`<a href="https://progresspedia.org/courses/snowboarding/${esc(u)}/" target="_blank" rel="noopener">${esc(t)} <span aria-hidden="true">↗</span></a>`).join("")}</div><p class="muted">Needs signal. Guides may describe a regular stance; mirror left and right for goofy.</p></div>`:""}
   ${s.safety?`<div class="card safety"><h3>Safety</h3>${esc(s.safety)}</div>`:""}
   <div class="card"><h3>Tignes & Val d'Isère</h3>${esc(s.area)}</div>
-  ${s.pre.length?`<div class="card"><h3>Needs</h3><div class="pre">${s.pre.map(p=>`<button data-go="${p}">${st(p)==="done"?"✓ ":""}${esc(sn(p))}${shown(byId[p])?"":" (hidden)"}</button>`).join("")}</div></div>`:""}
-  ${(UNLOCKS[s.id]||[]).length?`<div class="card"><h3>Unlocks</h3><div class="pre">${UNLOCKS[s.id].map(p=>`<button data-go="${p}">${esc(sn(p))}${shown(byId[p])?"":" (hidden)"}</button>`).join("")}</div></div>`:""}
+  ${s.pre.length?`<div class="card"><h3>Needs</h3><div class="pre">${s.pre.map(p=>`<button data-go="${p}">${st(p)==="done"?"✓ ":""}${esc(sn(p))}${visible(byId[p].branch)?"":" (hidden)"}</button>`).join("")}</div></div>`:""}
+  ${(UNLOCKS[s.id]||[]).length?`<div class="card"><h3>Unlocks</h3><div class="pre">${UNLOCKS[s.id].map(p=>`<button data-go="${p}">${esc(sn(p))}${visible(byId[p].branch)?"":" (hidden)"}</button>`).join("")}</div></div>`:""}
   <div class="card"><h3>Date achieved</h3><input type="date" id="achIn" value="${esc(S.achieved[s.id]||"")}"></div>
   <div class="card"><h3>Notes</h3>${notes.length?`<ul class="log">${notes.map((n,i)=>`<li><button class="del" data-dn="${i}" aria-label="Delete note">✕</button><div class="d">${esc(n.d)}</div>${esc(n.t)}</li>`).slice().reverse().join("")}</ul>`:'<span class="muted">No notes yet.</span>'}</div>
   <div class="card"><h3>Video links</h3>${vids.length?`<ul class="log">${vids.map((v,i)=>`<li><button class="del" data-dv="${i}" aria-label="Delete link">✕</button><a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a></li>`).join("")}</ul>`:""}

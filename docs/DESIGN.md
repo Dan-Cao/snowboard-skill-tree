@@ -68,7 +68,8 @@ The main job is to **plan what to practise next**. Tracking progress comes secon
   - The bar also shows the skill's one-line `desc`, so Dan can tell at a glance what it is and whether he's done it. The same line sits at the top of the details sheet.
   - Tapping the same skill again opens its details. Tapping any blank area closes focus.
   - Dotted lines across the whole tree were rejected as unclear.
-- **Branch identity:** each branch has a colour stripe on its cards and a tinted lane. Tapping a lane heading or a progress tile highlights that branch.
+- **Branch identity:** each branch has a colour stripe on its cards and a tinted lane. Tapping a lane heading highlights that branch.
+- **Progress tiles are show/hide switches** (Dan asked for hiding, not greying out). Tapping a tile removes that branch's skills from the main screen, including Core riding; the tile stays, dimmed and marked "hidden", so it can be tapped back on. This is view-only and saved as `hidden`: Today's plan still uses every branch switched on in the branch chooser.
 - **Tap targets are at least 44 px.** Cards use short names (`SHORT` in app.html) so three lanes fit on the cover screen.
 - **Rarely used controls are kept small or in ☰.** For example, the branch chooser is a cog, and the branch on/off controls are switches without text.
 - **Logging speed:** changing a status plus adding a note should take under 15 seconds.
