@@ -307,11 +307,11 @@ const SKILLS = [
 
 { id:"T7", branch:"trunk", row:4, col:0, name:"Short-radius skidded turns", desc:"Quick, rhythmic skidded turns in a narrow corridor. Your go-to for busy or steeper pistes.", pp:[["Dynamic short-radius turns", "dynamic-short-turns"]], tag:"either", pre:["T2","T13"], weak:"speed",
   test:"20 short, rhythmic skidded turns in a corridor about 2 board-lengths wide on a blue, at constant speed.",
-  drills:["Shrink the corridor: start wide, halve the width every run.","Count the edge changes out loud to a steady beat.","Pivot the board with both legs quickly while staying low."],
+  drills:["Linked speed checks: do a quick hockey-stop-style speed check (T13) on the heel edge, release, then one on the toe edge, and gradually join them into continuous short turns.","Shrink the corridor: start wide, halve the width every run.","Count the edge changes out loud to a steady beat.","Pivot the board with both legs quickly while staying low."],
   mistakes:["Upper body rotating with every turn — keep shoulders roughly in line with the board and steer with your legs.","Getting tall and stiff: short turns need active, bending knees."],
   area:"Upper Solaise blues (Val d'Isère) are wide enough to practise without traffic." },
 
-{ id:"T6", branch:"trunk", row:4, col:1, name:"Cat tracks & narrow paths", desc:"Getting along narrow cat tracks and paths without stopping, catching an edge or running out of speed.", pp:[["Riding flat, narrow runs", "riding-flat-narrow-runs"], ["Reading the trail map (and avoiding the flats)", "reading-the-mountain"]], tag:"solo", pre:["T5"], weak:"flats",
+{ id:"T6", branch:"trunk", row:4, col:1, name:"Cat tracks & narrow paths", desc:"Getting along narrow cat tracks and paths without stopping, catching an edge or running out of speed.", pp:[["Riding flat, narrow runs", "riding-flat-narrow-runs"], ["Reading the trail map (and avoiding the flats)", "reading-the-mountain"]], tag:"solo", pre:["T4","T5"], weak:"flats",
   test:"Ride a full narrow cat track without stopping, using small speed checks and keeping momentum before uphill or flat parts.",
   drills:["Plan momentum: carry a bit more speed into known flat sections.","Small 'shaving' speed checks on the heel edge while staying on track.","Ride along the high side of the track so you have room to drop down for speed."],
   mistakes:["Stopping just before a flat bit, then having to unstrap.","Over-braking on narrow paths out of nerves."],
@@ -349,8 +349,8 @@ const SKILLS = [
 
 { id:"T13", branch:"trunk", row:3, col:0, name:"Hockey stops & speed checks", desc:"Fast, sharp stops on either edge, and quick speed checks without fully stopping.", pp:[["Hockey stops", "hockey-stops"]], tag:"either", pre:["T2"], weak:"speed",
   test:"From medium speed on a blue, hockey-stop within 3 board-lengths on each edge, 5 times each.",
-  drills:["Hockey stops: on the heel edge, then the toe edge.","Speed check without fully stopping, then carry on turning.","Practise on a clear, wide slope with nobody below you; repeat on a red once T11 is solid."],
-  mistakes:["Swinging the tail round with the left (back) foot only — use both feet.","Edge too high and catching on the toe side."],
+  drills:["Start from a shallow traverse and hockey-stop on the heel edge, then the toe edge; start each one a little closer to the fall line until you can stop from straight down a blue.","Speed check without fully stopping, then carry on turning.","Practise on a clear, wide slope with nobody below you; repeat on a red once T11 is solid."],
+  mistakes:["Swinging the tail round with the left (back) foot only — use both feet.","Board too flat at the end of the stop, so the downhill edge catches; or too much edge on the toe side, so you pitch forward onto your knees."],
   area:"Wide, quiet blues first thing in the morning, before the crowds." },
 
 { id:"T17", branch:"trunk", row:6, col:1, name:"Sideslip & falling leaf on red", desc:"Sliding down steep bits on one edge, or drifting forwards and backwards across them (falling leaf).", pp:[["Sideslip & falling leaf", "falling-leaf"]], tag:"solo", pre:["T8"], weak:"speed",
