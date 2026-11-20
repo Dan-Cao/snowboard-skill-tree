@@ -276,10 +276,10 @@ body.paper .prog,body.slate .prog{border-top-width:3px}
 <script>
 const KEY="sbtree.v1";
 const BRANCH={found:"Foundations",trunk:"Core riding",carving:"Carving",freeride:"Freeride",ground:"Ground tricks",jumps:"Jumps",rails:"Rails & boxes",pipe:"Halfpipe",backcountry:"Backcountry",cross:"Boardercross"};
-const OPTIONAL=Object.keys(BRANCH).filter(b=>b!=="trunk");
-const DEFAULT_ON={carving:true,freeride:true};
+const OPTIONAL=Object.keys(BRANCH); // every branch, Core riding included, has a switch in the branch chooser
+const DEFAULT_ON={trunk:true,carving:true,freeride:true};
 const sn=id=>(typeof SHORT!=="undefined"&&SHORT[id])||byId[id].name;
-const isOn=b=>b==="trunk"||!!(S.branches||{})[b];
+const isOn=b=>!!(S.branches||{})[b];
 const shown=s=>isOn(s.branch);
 // Tiles hide a branch from the main screen only; Today's plan still uses every switched-on branch
 const visible=b=>isOn(b)&&!(S.hidden||{})[b];
@@ -327,7 +327,7 @@ const TRUNK_SECTION={title:"Core riding",root:"T1",lanes:[["Turns",["T3","T8","T
 function sections(){
   // Foundations come before core riding (T1 builds on them); other branches pair up below it
   const sec=bs=>({lanes:bs.map(b=>[BRANCH[b],SKILLS.filter(s=>s.branch===b).map(s=>s.id)]),branches:bs});
-  const act=OPTIONAL.filter(b=>b!=="found"&&visible(b)), out=[...(visible("found")?[sec(["found"])]:[]),...(visible("trunk")?[TRUNK_SECTION]:[])];
+  const act=OPTIONAL.filter(b=>b!=="found"&&b!=="trunk"&&visible(b)), out=[...(visible("found")?[sec(["found"])]:[]),...(visible("trunk")?[TRUNK_SECTION]:[])];
   for(let i=0;i<act.length;i+=2){
     out.push(sec(act.slice(i,i+2)));
   }
@@ -402,7 +402,7 @@ function renderProgress(){
   const P=document.getElementById("progress");P.innerHTML=h;
   const act=OPTIONAL.filter(isOn);
 
-  document.getElementById("brlegend").innerHTML=[...act.filter(b=>b==="found"),"trunk",...act.filter(b=>b!=="found")].map(b=>`<b style="color:var(--b-${b})">▌${b==="trunk"?"Core":BRANCH[b]}</b>`).join(" ")+' <button id="brEdit" class="cog" aria-label="Choose branches" title="Choose branches">⚙</button>';
+  document.getElementById("brlegend").innerHTML=act.map(b=>`<b style="color:var(--b-${b})">▌${b==="trunk"?"Core":BRANCH[b]}</b>`).join(" ")+' <button id="brEdit" class="cog" aria-label="Choose branches" title="Choose branches">⚙</button>';
   document.getElementById("brEdit").onclick=openBranches;P.querySelectorAll("[data-vis]").forEach(t=>t.onclick=()=>toggleVis(t.dataset.vis));
 }
 function markFocus(){
@@ -571,6 +571,7 @@ function importText(t){
 function menuMsg(t){const m=document.getElementById("menuMsg");if(m)m.textContent=t}
 const BINFO={
  found:{d:"Hemel stages 1–4, already done: sideslip, falling leaf, single turns, button lift and linking turns. Show it to look back at the basics.",lo:1,hi:1},
+ trunk:{d:"The main path from linked skidded turns on blue up to reds and groomed blacks: turn shape, grippy turns, speed control, flats, ice and switch. Carving and Freeride build on it.",lo:2,hi:3},
  ground:{d:"Tricks on the piste without jumps: ollies, presses, butters and spins. The lowest-risk way into freestyle, and it builds pop and balance for everything else.",lo:2,hi:3},
  cross:{d:"Racing courses of banked turns (berms) and rollers. Builds carving, pumping and line choice at speed.",lo:2,hi:3},
  carving:{d:"Clean turns on the edge with no skid, leaving pencil-line tracks. Builds speed, grip on hardpack and confidence on reds and blacks.",lo:2,hi:4},
@@ -595,8 +596,8 @@ function openBranches(){renderBranches();document.getElementById("brSheet").clas
 function renderBranches(){
   const p=document.getElementById("brpanel");
   p.innerHTML=`<button class="close" data-close>✕</button><h2>Choose branches</h2>
-  <p class="muted" style="margin-right:52px">Core riding is always shown. Branches are listed from easiest to hardest to start; the bar shows the level range each one covers. Hidden branches keep your progress and are left out of Today's plan.</p>
-  <div class="brlist">${OPTIONAL.slice().sort((x,y)=>BINFO[x].lo-BINFO[y].lo||BINFO[x].hi-BINFO[y].hi).map(b=>{const all=SKILLS.filter(s=>s.branch===b),d=all.filter(s=>st(s.id)==="done").length,I=BINFO[b];
+  <p class="muted" style="margin-right:52px">Branches are listed from easiest to hardest to start; the bar shows the level range each one covers. Hidden branches keep your progress and are left out of Today's plan.</p>
+  <div class="brlist">${OPTIONAL.slice().sort((x,y)=>BINFO[x].lo-BINFO[y].lo||BINFO[x].hi-BINFO[y].hi||OPTIONAL.indexOf(x)-OPTIONAL.indexOf(y)).map(b=>{const all=SKILLS.filter(s=>s.branch===b),d=all.filter(s=>st(s.id)==="done").length,I=BINFO[b];
     return `<div class="bri b-${b} ${isOn(b)?"on":""}"><div class="top"><div><b>${BRANCH[b]}</b><div class="muted">${all.length} skills · ${d} done</div></div><button data-b="${b}" class="${isOn(b)?"on":""}" role="switch" aria-checked="${isOn(b)}" aria-label="Show ${BRANCH[b]}"><span class="sw"></span></button></div>
     <p>${I.d}</p>${levelBar(I.lo,I.hi)}<div class="hint">${startHint(b)}</div></div>`}).join("")}</div>`;
   p.querySelector("[data-close]").onclick=closeAll;

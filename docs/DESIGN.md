@@ -38,11 +38,12 @@ The main job is to **plan what to practise next**. Tracking progress comes secon
 
 ## Structure
 
-- **Core riding** (`trunk`) is always shown. It starts from the root skill T1 and splits into three lanes: **Turns**, **Speed control**, and **Terrain & switch**. Switch is folded into core riding rather than being its own branch.
+- **Core riding** (`trunk`) is on by default and, like every branch, has its own switch in the branch chooser (made switchable in Nov 2026 for consistency). It starts from the root skill T1 and splits into three lanes: **Turns**, **Speed control**, and **Terrain & switch**. Switch is folded into core riding rather than being its own branch.
 - **Early core order follows Hemel's levels 1–5** (Nov 2026, Dan's call after comparing with Hemel and Progresspedia): hockey stops (T13) come straight after turn-shape speed control (T2) and before short turns (T7), because Hemel teaches stopping safely in stage 5 and Progresspedia builds short turns on hockey stops. Skating & one-foot (T5, a Hemel stage 1 skill) needs only T1 and comes before flat-base gliding (T4).
 - **Foundations** (`found`, S1–S5) record Hemel stages 1–4 (heel sideslip, falling leaf, single turns, button lift, linking turns with traverses). It is an ordinary branch with its own switch in the branch chooser, **off by default**; when shown it sits above core riding because T1 needs S5. Its skills start as done. Added Nov 2026 at Dan's request (an earlier fold-out row was replaced by the switch).
 - **Optional branches** can be toggled in ☰ → Branches or with the ⚙ next to the legend:
   - Carving and Freeride: on by default, both go all the way to expert.
+  - Core riding: on by default.
   - Foundations: off by default.
   - Ground tricks, Jumps, Rails & boxes, Halfpipe, Backcountry, Boardercross: off by default.
 - Each branch in `BINFO` (app.html) has a short description and a level range (1 Beginner – 4 Expert). The chooser sorts branches from easiest to hardest to start.
