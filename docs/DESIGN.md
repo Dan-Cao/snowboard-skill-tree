@@ -40,6 +40,7 @@ The main job is to **plan what to practise next**. Tracking progress comes secon
 
 - **Core riding** (`trunk`) is always shown. It starts from the root skill T1 and splits into three lanes: **Turns**, **Speed control**, and **Terrain & switch**. Switch is folded into core riding rather than being its own branch.
 - **Early core order follows Hemel's levels 1–5** (Nov 2026, Dan's call after comparing with Hemel and Progresspedia): hockey stops (T13) come straight after turn-shape speed control (T2) and before short turns (T7), because Hemel teaches stopping safely in stage 5 and Progresspedia builds short turns on hockey stops. Skating & one-foot (T5, a Hemel stage 1 skill) needs only T1 and comes before flat-base gliding (T4).
+- **Foundations** (`found`, S1–S5) sit above core riding as a record of Hemel stages 1–4 (heel sideslip, falling leaf, single turns, button lift, linking turns with traverses). They start as done, are folded by default (saved as `foundOpen`), never count in the progress tiles and are never picked for Today's plan while done. T1 needs S5. Added Nov 2026 at Dan's request.
 - **Optional branches** can be toggled in ☰ → Branches or with the ⚙ next to the legend:
   - Carving and Freeride: on by default, both go all the way to expert.
   - Ground tricks, Jumps, Rails & boxes, Halfpipe, Backcountry, Boardercross: off by default.

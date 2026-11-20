@@ -45,6 +45,11 @@ async def main():
             await pg.click("#menuBtn"); await pg.click(f"[data-theme={th}]"); await pg.click("#menuSheet [data-close]"); await pg.screenshot(path=f"{OUT}/cover_{th}.png")
         await pg.reload(); print("theme persists:",await pg.evaluate("S.theme"),await pg.evaluate("document.body.className"))
         await pg.evaluate("localStorage.setItem('sbtree.v1',JSON.stringify(Object.assign(JSON.parse(localStorage.getItem('sbtree.v1')),{sun:true,theme:undefined})))"); await pg.reload(); print("old sun save ->",await pg.evaluate("S.theme"))
+        # Foundations: folded by default, all done, opens and persists
+        print("found statuses:",await pg.evaluate("['S1','S2','S3','S4','S5'].map(i=>st(i)).join(',')"),"T1 needs:",await pg.evaluate("byId.T1.pre.join(',')"))
+        await pg.click("#foldBtn"); n=await pg.evaluate("document.querySelectorAll('.node.b-found').length"); await pg.reload()
+        print("found cards shown:",n,"open after reload:",await pg.evaluate("S.foundOpen"))
+        await pg.click("#foldBtn"); print("found cards after hide:",await pg.evaluate("document.querySelectorAll('.node.b-found').length"))
         print("errs",errs)
       await ctx.close()
     await b.close()

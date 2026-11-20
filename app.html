@@ -149,6 +149,10 @@ button.on .sw::after{left:29px;background:var(--bg)}
 .node.f-pre{outline:3px solid var(--accent);outline-offset:2px}
 .node.f-post{outline:3px dashed var(--next);outline-offset:2px}
 .secgap{height:30px}
+body{--b-found:var(--b-trunk);--t-found:transparent}
+.b-found{--bc:var(--b-found)}
+.fold{width:100%;min-height:48px;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 12px;margin-bottom:10px;border-radius:12px;border:2px dashed var(--line);background:transparent;color:var(--muted);font-weight:800;font-size:14px;text-align:left}
+.fold .fn{color:var(--done);font-weight:700;white-space:nowrap}
 #fbar{position:fixed;left:0;right:0;bottom:0;z-index:15;display:none;background:var(--bg);border-top:3px solid var(--text);padding:10px 12px 14px;max-width:760px;margin:0 auto}
 #fbar.show{display:block}
 #fbar .t{font-weight:800;font-size:17px;margin-right:52px}
@@ -271,11 +275,11 @@ body.paper .prog,body.slate .prog{border-top-width:3px}
 </script>
 <script>
 const KEY="sbtree.v1";
-const BRANCH={trunk:"Core riding",carving:"Carving",freeride:"Freeride",ground:"Ground tricks",jumps:"Jumps",rails:"Rails & boxes",pipe:"Halfpipe",backcountry:"Backcountry",cross:"Boardercross"};
-const OPTIONAL=Object.keys(BRANCH).filter(b=>b!=="trunk");
+const BRANCH={found:"Foundations",trunk:"Core riding",carving:"Carving",freeride:"Freeride",ground:"Ground tricks",jumps:"Jumps",rails:"Rails & boxes",pipe:"Halfpipe",backcountry:"Backcountry",cross:"Boardercross"};
+const OPTIONAL=Object.keys(BRANCH).filter(b=>b!=="trunk"&&b!=="found");
 const DEFAULT_ON={carving:true,freeride:true};
 const sn=id=>(typeof SHORT!=="undefined"&&SHORT[id])||byId[id].name;
-const isOn=b=>b==="trunk"||!!(S.branches||{})[b];
+const isOn=b=>b==="trunk"||b==="found"||!!(S.branches||{})[b];
 const shown=s=>isOn(s.branch);
 const WEAK={speed:"Speed control on steeper pitches",flats:"Getting stuck on flats"};
 const byId={}; SKILLS.forEach(s=>byId[s.id]=s);
@@ -284,7 +288,7 @@ let storageOK=true, S;
 function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function fresh(){
   const st={}; SKILLS.forEach(s=>st[s.id]=s.start||"locked"); st.T1="done";
-  return {v:1,status:st,notes:{},videos:{},achieved:{T1:""},plan:null,theme:"night",lastBackup:null,changes:0,branches:Object.assign({},DEFAULT_ON)};
+  return {v:1,status:st,notes:{},videos:{},achieved:{T1:""},plan:null,theme:"night",foundOpen:false,lastBackup:null,changes:0,branches:Object.assign({},DEFAULT_ON)};
 }
 function load(){
   try{
@@ -314,12 +318,13 @@ function chips(s){
   if(s.tag==="lesson")h+='<span class="chip">🎓</span>';
   return h;
 }
-const SHORT={T1:"Skidded turns · blue",T2:"Turn shape",T3:"Grippy turns · blue",T4:"Flat-base glide",T5:"Skating",T6:"Cat tracks",T7:"Short turns",T8:"Steeper blues",T9:"Hardpack & ice",T10:"Switch turns",T11:"Skidded turns · red",T12:"Grippy turns · red",T13:"Hockey stops",T14:"Rollers & chop",T15:"Switch · red",T16:"Groomed blacks",T17:"Sideslip · red",
+const SHORT={S1:"Heel sideslip",S2:"Falling leaf",S3:"Single turns",S4:"Button lift",S5:"Linking turns",T1:"Skidded turns · blue",T2:"Turn shape",T3:"Grippy turns · blue",T4:"Flat-base glide",T5:"Skating",T6:"Cat tracks",T7:"Short turns",T8:"Steeper blues",T9:"Hardpack & ice",T10:"Switch turns",T11:"Skidded turns · red",T12:"Grippy turns · red",T13:"Hockey stops",T14:"Rollers & chop",T15:"Switch · red",T16:"Groomed blacks",T17:"Sideslip · red",
  C1:"Railroad tracks",C2:"First linked carves",C3:"Carving · blue",C4:"Carving · red",C5:"Edge angles",C6:"Dynamic turns",C7:"Turn radius",C8:"Switch carving",C9:"Carving at speed",C10:"Euro carves",
  F1:"Piste-edge soft snow",F2:"Small moguls",F3:"Powder",F4:"Tracked snow",F5:"Trees",F6:"Steep off-piste",F7:"Small drops",F8:"Chutes",F9:"Big-mountain lines"};
 const TRUNK_SECTION={title:"Core riding",root:"T1",lanes:[["Turns",["T3","T8","T17","T11","T12","T16"]],["Speed control",["T2","T13","T7","T9"]],["Terrain & switch",["T5","T4","T6","T14","T10","T15"]]]};
+const FOUND_SECTION={fold:true,title:"Foundations · Hemel 1–4",lanes:[["Sideslip & lifts",["S1","S2","S4"]],["Turns",["S3","S5"]]],branches:["found"]};
 function sections(){
-  const act=OPTIONAL.filter(isOn), out=[TRUNK_SECTION];
+  const act=OPTIONAL.filter(isOn), out=[FOUND_SECTION,TRUNK_SECTION];
   for(let i=0;i<act.length;i+=2){
     out.push({lanes:act.slice(i,i+2).map(b=>[BRANCH[b],SKILLS.filter(s=>s.branch===b).map(s=>s.id)]),branches:act.slice(i,i+2)});
   }
@@ -363,6 +368,9 @@ function card(s,extra=""){
 function renderTree(){
   let h="";
   sections().forEach((sec,si)=>{
+    if(sec.fold){const ids=sec.lanes.flatMap(L=>L[1]),d=ids.filter(i=>st(i)==="done").length,open=!!S.foundOpen;
+      h+=`<button class="fold b-found" id="foldBtn" aria-expanded="${open}"><span>${open?"▾":"▸"} ${sec.title}</span><span class="fn">${d}/${ids.length} done · ${open?"Hide":"Show"}</span></button>`;
+      if(!open){h+='<div class="secgap"></div>';return}}
     const {lane,row}=layout(sec), n=sec.lanes.length, off=sec.root?2:1;
     const brs=sec.branches||[];
     h+=`${si?'<div class="secgap"></div>':""}<div class="lanes ${brs.length?"br":""} ${brs.length===1?"one":""}" data-sec="${si}" style="${brs.length?`--tl:var(--t-${brs[0]});--tr:var(--t-${brs[1]||brs[0]})`:""}"><svg></svg><div class="grid g${n}">`;
@@ -377,13 +385,14 @@ function renderTree(){
   });
   const t=document.getElementById("tree"); t.innerHTML=h; t.classList.toggle("focusing",!!focus); t.classList.toggle("highlighting",!!hl);
   t.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>toggleHl(b.dataset.hl));
+  const fb=t.querySelector("#foldBtn"); if(fb)fb.onclick=()=>{S.foundOpen=!S.foundOpen;if(!S.foundOpen&&focus&&byId[focus].branch==="found")clearFocus();if(!S.foundOpen&&hl==="found")hl=null;save(false);renderTree()};
   t.querySelectorAll(".node").forEach(n=>n.onclick=()=>tapNode(n.dataset.id));
   if(focus)markFocus();
   renderProgress(); requestAnimationFrame(drawLines);
 }
 function renderProgress(){
   let h="";
-  for(const b in BRANCH){if(!isOn(b))continue;const all=SKILLS.filter(s=>s.branch===b);const d=all.filter(s=>st(s.id)==="done").length;
+  for(const b in BRANCH){if(!isOn(b)||b==="found")continue;const all=SKILLS.filter(s=>s.branch===b);const d=all.filter(s=>st(s.id)==="done").length;
     h+=`<button class="prog b-${b} ${hl===b?"on":""}" data-hl="${b}"><div class="t">${BRANCH[b]}</div><div class="n">${d}/${all.length}</div><div class="bar"><i style="width:${Math.round(d/all.length*100)}%"></i></div></button>`}
   const P=document.getElementById("progress");P.innerHTML=h;
   const act=OPTIONAL.filter(isOn);
