@@ -954,7 +954,7 @@ function closeAll(){["sheet","planSheet","menuSheet","brSheet"].forEach(i=>docum
 
 // ───── Session planner ─────
 // Three kinds of day. Lesson: the instructor leads, so show a brief for them and log homework afterwards.
-// With buddy (Sophie, similar or slightly lower level) and Solo: homework from the last lesson first, then skills to practise.
+// With buddy (Sophie; assume a similar level, make no other assumptions) and Solo: homework from the last lesson first, then skills to practise.
 const DAYS={lesson:"🎓 Lesson",buddy:"👥 With buddy",solo:"Solo"};
 function homework(){ // homework notes, newest first
   const out=[];for(const id in S.notes)(S.notes[id]||[]).forEach((n,i)=>{if(n&&n.hw&&byId[id])out.push({id,i,d:n.d,t:n.t})});
@@ -988,11 +988,9 @@ const strip=t=>t.replace(/\.$/,"");
 function how(s,type){
   const d=s.drills,m=s.mistakes||[];
   if(type==="buddy"){
-    const easier=s.pre.map(p=>byId[p]).filter(p=>p&&p.branch!=="found").map(p=>p.name);
     return `Take turns on this drill: ${strip(d[0]).replace(/^./,c=>c.toLowerCase())}. One of you rides while the other watches from below and looks for "${strip(m[0]||"the common mistakes")}", then swap.`
       +(d[1]?` Next, ${strip(d[1]).replace(/^./,c=>c.toLowerCase())}.`:"")
-      +` Film one run each, then check each other on the test: ${s.test}`
-      +(easier.length?` If it's a stretch for Sophie, ${easier[0]} works on the same runs.`:"");
+      +` Film one run each, then check each other on the test: ${s.test}`;
   }
   return `Warm up with a couple of runs of: ${strip(d[0])}. Spend most of the session on ${d[1]?strip(d[1]):"the same drill"}${d[2]?", then: "+strip(d[2]):""}. Finish by trying the test: ${s.test}`;
 }

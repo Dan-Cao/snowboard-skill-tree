@@ -31,7 +31,7 @@ async def main():
         await pg.select_option("#hwSkill","T13"); await pg.fill("#hwIn","Hockey stops on toeside, within 3 board lengths"); await pg.click("#hwSave")
         print(" homework saved:",await pg.evaluate("JSON.stringify(S.notes.T13.slice(-1)[0])"),await pg.text_content("#plan .saved"))
         await pg.click('[data-t="buddy"]'); await pg.screenshot(path=f"{OUT}/cover_plan_buddy.png",full_page=False)
-        print("buddy plan:",await pg.evaluate("S.plan.items.map(i=>i.id)"),"homework card:",await pg.evaluate("document.querySelector('.pitem.hw').innerText.includes('Hockey stops on toeside')"),"Sophie line:",await pg.evaluate("document.querySelector('#plan').innerText.includes('Sophie')"))
+        print("buddy plan:",await pg.evaluate("S.plan.items.map(i=>i.id)"),"homework card:",await pg.evaluate("document.querySelector('.pitem.hw').innerText.includes('Hockey stops on toeside')"),"no Sophie-level assumption:",await pg.evaluate("!document.querySelector('#plan').innerText.includes('stretch')"))
         await pg.click('[data-t="solo"]'); print(" solo with homework:",await pg.evaluate("S.plan.items.map(i=>i.id)"))
         await pg.click("#planSheet [data-close]")
         # persistence

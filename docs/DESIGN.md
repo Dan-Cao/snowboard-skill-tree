@@ -53,13 +53,13 @@ The main job is to **plan what to practise next**. Tracking progress comes secon
 
 ## Today's plan
 
-Reworked Nov 2026 after Dan pointed out that on lesson days the instructor decides, and on other days he rides with **Sophie** (a snowboarder at a similar or slightly lower level).
+Reworked Nov 2026 after Dan pointed out that on lesson days the instructor decides, and on other days Dan rides with **Sophie**, a snowboarder. Assume a similar level to Dan and make no other assumptions about Sophie's level (Dan's call).
 
 - Three kinds of day: **🎓 Lesson**, **👥 With buddy**, **Solo**.
-- **Lesson:** the app doesn't pick the lesson. It shows a **brief for the instructor** (goofy, Hemel level, what he's learning, what's next, weak spots, trip goal and last homework), and a form to log **homework** afterwards.
+- **Lesson:** the app doesn't pick the lesson. It shows a **brief for the instructor** (goofy, Hemel level, what Dan is learning, what's next, weak spots, trip goal and last homework), and a form to log **homework** afterwards.
 - **Homework** is a free-text note on a skill, saved in `S.notes` with `hw:true` and shown with a "Homework" tag in the skill's notes. There's no due date or tick; the plan shows the homework from the **most recent lesson date**, and Dan deletes a homework note when it's finished.
 - **With buddy** and **Solo:** homework from the last lesson comes first, then **2** (buddy) or **3** (solo) skills to practise. Homework skills always qualify and rank top (+40), whatever their status or tag. Other picks skip lesson-only skills.
-- Buddy picks use partner versions of the drills: take turns and watch for the first common mistake, film each other, check each other on the test, and suggest the skill's prerequisite for Sophie if it's a stretch.
+- Buddy picks use partner versions of the drills: take turns and watch for the first common mistake, film each other and check each other on the test. Both riders do the same skill.
 - Each pick says why it was chosen, plus Dan's last (non-homework) note. Only today's plan is kept, and skills in switched-off branches are left out.
 - The plan doesn't adapt to snow or energy ("keep it simple").
 
