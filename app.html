@@ -208,6 +208,14 @@ a{color:var(--next);word-break:break-all}
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
 .seg button{min-height:56px;border-radius:12px;border:2px solid var(--line);background:var(--panel);font-weight:800}
 .seg button.on{border-color:var(--accent);color:var(--accent);background:var(--panel2)}
+.seg.seg3{grid-template-columns:repeat(3,1fr)} .seg.seg3 button{font-size:15px;padding:0 4px}
+.brief{margin:6px 0;padding-left:20px} .brief li{margin:3px 0}
+.hwl{margin:6px 0 0;padding-left:0;list-style:none} .hwl li{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;padding:6px 0;border-top:1px solid var(--line)}
+.hwl li>span{flex:1 1 200px}
+.hwl li .btn{min-height:44px;padding:0 12px;margin-left:auto}
+.pitem.hw{border-color:var(--learn)} .pitem.hw .role{color:var(--learn)}
+.pitem select,.pitem textarea{width:100%;margin:4px 0 8px;font:inherit;color:var(--text);background:var(--panel2);border:2px solid var(--line);border-radius:10px;padding:10px;min-height:48px}
+.hwb{color:var(--learn)}
 .pitem{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:12px;margin:12px 0}
 .pitem .role{font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent)}
 .pitem h3{margin:2px 0 6px;font-size:18px}
@@ -476,7 +484,7 @@ function renderDetail(msg=""){
   ${s.pre.length?`<div class="card"><h3>Needs</h3><div class="pre">${s.pre.map(p=>`<button data-go="${p}">${st(p)==="done"?"✓ ":""}${esc(sn(p))}${visible(byId[p].branch)?"":" (hidden)"}</button>`).join("")}</div></div>`:""}
   ${(UNLOCKS[s.id]||[]).length?`<div class="card"><h3>Unlocks</h3><div class="pre">${UNLOCKS[s.id].map(p=>`<button data-go="${p}">${esc(sn(p))}${visible(byId[p].branch)?"":" (hidden)"}</button>`).join("")}</div></div>`:""}
   <div class="card"><h3>Date achieved</h3><input type="date" id="achIn" value="${esc(S.achieved[s.id]||"")}"></div>
-  <div class="card"><h3>Notes</h3>${notes.length?`<ul class="log">${notes.map((n,i)=>`<li><button class="del" data-dn="${i}" aria-label="Delete note">✕</button><div class="d">${esc(n.d)}</div>${esc(n.t)}</li>`).slice().reverse().join("")}</ul>`:'<span class="muted">No notes yet.</span>'}</div>
+  <div class="card"><h3>Notes</h3>${notes.length?`<ul class="log">${notes.map((n,i)=>`<li><button class="del" data-dn="${i}" aria-label="Delete note">✕</button><div class="d">${esc(n.d)}${n.hw?' · <b class="hwb">Homework</b>':""}</div>${esc(n.t)}</li>`).slice().reverse().join("")}</ul>`:'<span class="muted">No notes yet.</span>'}</div>
   <div class="card"><h3>Video links</h3>${vids.length?`<ul class="log">${vids.map((v,i)=>`<li><button class="del" data-dv="${i}" aria-label="Delete link">✕</button><a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a></li>`).join("")}</ul>`:""}
   <div class="noteRow" style="margin-top:8px"><input type="url" id="vidIn" placeholder="Paste a video link"><button class="btn" id="vidAdd">Add</button></div></div>`;
   const p=document.getElementById("detail"); p.innerHTML=h;
@@ -501,55 +509,95 @@ function closeAll(){["sheet","planSheet","menuSheet","brSheet"].forEach(i=>docum
 ["sheet","planSheet","menuSheet","brSheet"].forEach(i=>document.getElementById(i).addEventListener("click",e=>{if(e.target.id===i)closeAll()}));
 
 // ───── Session planner ─────
-function reasons(s,type){
+// Three kinds of day. Lesson: the instructor leads, so show a brief for them and log homework afterwards.
+// With buddy (Sophie, similar or slightly lower level) and Solo: homework from the last lesson first, then skills to practise.
+const DAYS={lesson:"🎓 Lesson",buddy:"👥 With buddy",solo:"Solo"};
+function homework(){ // homework notes, newest first
+  const out=[];for(const id in S.notes)(S.notes[id]||[]).forEach((n,i)=>{if(n&&n.hw&&byId[id])out.push({id,i,d:n.d,t:n.t})});
+  return out.sort((a,b)=>b.d.localeCompare(a.d));
+}
+function lastHomework(){const h=homework();return h.length?h.filter(x=>x.d===h[0].d):[]}
+function reasons(s){
   const r=[]; const x=st(s.id);
+  if(lastHomework().some(h=>h.id===s.id))r.push("it's homework from your last lesson");
   if(x==="learning")r.push("you're already learning it, so consolidating it pays off fastest");
-  else r.push("everything it builds on is done, so it's next on the tree");
+  else if(preDone(s))r.push("everything it builds on is done, so it's next on the tree");
   if(s.goal)r.push("it's one of your Tignes goals (reds + first carves)");
   if(s.weak)r.push("it works on a weak spot: "+WEAK[s.weak].toLowerCase());
-  if(type==="lesson"&&s.tag==="lesson")r.push("it's best learned with an instructor, so it suits a lesson day");
   return r;
 }
-function score(s,type){
+function score(s){
   let v=0; const x=st(s.id);
+  if(lastHomework().some(h=>h.id===s.id))v+=40;
   if(x==="learning")v+=50; if(s.goal)v+=30; if(s.weak)v+=20;
-  if(type==="lesson"&&s.tag==="lesson")v+=25;
   v-=s.row*2; return v;
 }
+// Skills to practise without an instructor or guide
+// (homework from the last lesson always counts, whatever its status or tag: the instructor set it)
+const practiceable=()=>{const hw=new Set(lastHomework().map(h=>h.id));
+  return SKILLS.filter(s=>shown(s)&&st(s.id)!=="done"&&(hw.has(s.id)||(s.tag!=="lesson"&&(st(s.id)==="learning"||preDone(s))))).sort((a,b)=>score(b)-score(a))};
 function makePlan(type){
-  let c=SKILLS.filter(s=>shown(s)).filter(s=>st(s.id)==="learning"||(st(s.id)==="locked"&&preDone(s)));
-  if(type==="solo")c=c.filter(s=>s.tag!=="lesson");
-  c.sort((a,b)=>score(b,type)-score(a,type));
-  let items=[];
-  if(type==="lesson"){
-    const L=c.find(s=>s.tag!=="solo");
-    if(L)items.push({id:L.id,role:"Lesson focus"});
-    c.filter(s=>s.id!==(L&&L.id)&&s.tag!=="lesson").slice(0,2).forEach(s=>items.push({id:s.id,role:"Afternoon practice"}));
-  }else c.slice(0,3).forEach(s=>items.push({id:s.id,role:"Practice"}));
+  const items=type==="lesson"?[]:practiceable().slice(0,type==="buddy"?2:3).map(s=>({id:s.id}));
   S.plan={date:today(),type,items};save();renderPlan();
 }
-function para(it,type){
-  const s=byId[it.id], r=reasons(s,type), d=s.drills;
-  const why="Picked because "+r.join("; ")+".";
-  let how;
-  if(it.role==="Lesson focus") how=`Ask your instructor to focus the lesson on this. Tell them the target: "${s.test}" Afterwards, practise with: ${d[0].replace(/\.$/,"")}.`;
-  else how=`Warm up with a couple of runs of: ${d[0].replace(/\.$/,"")}. Spend most of the session on ${d[1]?d[1].replace(/\.$/,""):"the same drill"}${d[2]?", then: "+d[2].replace(/\.$/,""):""}. Finish by trying the test: ${s.test}`;
-  return {why,how};
+const strip=t=>t.replace(/\.$/,"");
+function how(s,type){
+  const d=s.drills,m=s.mistakes||[];
+  if(type==="buddy"){
+    const easier=s.pre.map(p=>byId[p]).filter(p=>p&&p.branch!=="found").map(p=>p.name);
+    return `Take turns on this drill: ${strip(d[0]).replace(/^./,c=>c.toLowerCase())}. One of you rides while the other watches from below and looks for "${strip(m[0]||"the common mistakes")}", then swap.`
+      +(d[1]?` Next, ${strip(d[1]).replace(/^./,c=>c.toLowerCase())}.`:"")
+      +` Film one run each, then check each other on the test: ${s.test}`
+      +(easier.length?` If it's a stretch for Sophie, ${easier[0]} works on the same runs.`:"");
+  }
+  return `Warm up with a couple of runs of: ${strip(d[0])}. Spend most of the session on ${d[1]?strip(d[1]):"the same drill"}${d[2]?", then: "+strip(d[2]):""}. Finish by trying the test: ${s.test}`;
 }
-function renderPlan(){
-  const p=document.getElementById("plan"), pl=S.plan&&S.plan.date===today()?S.plan:null, type=pl?pl.type:(S.lastType||"lesson");
+function homeworkCard(){
+  const h=lastHomework();
+  if(!h.length)return '<div class="pitem hw"><div class="role">Homework</div><p class="muted">No homework logged yet. After a lesson, choose 🎓 Lesson and log what your instructor set.</p></div>';
+  return `<div class="pitem hw"><div class="role">Homework from your lesson on ${esc(new Date(h[0].d+"T12:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"}))}</div><ul class="hwl">${h.map(x=>`<li><span><b>${esc(byId[x.id].name)}</b>: ${esc(x.t)}</span><button class="btn plain" data-open="${x.id}">Open</button></li>`).join("")}</ul></div>`;
+}
+function lessonView(msg){
+  const name=s=>esc(s.name), L=SKILLS.filter(s=>shown(s)&&st(s.id)==="learning"), N=SKILLS.filter(s=>shown(s)&&st(s.id)==="locked"&&preDone(s)).sort((a,b)=>score(b)-score(a)).slice(0,3);
+  const hw=lastHomework(), opt=(s,sel)=>`<option value="${s.id}" ${sel?"selected":""}>${name(s)}</option>`;
+  const rest=SKILLS.filter(s=>shown(s)&&!L.includes(s)&&!N.includes(s)&&s.branch!=="found");
+  const todays=homework().filter(x=>x.d===today());
+  return `<div class="pitem"><div class="role">Brief for your instructor</div>
+  <ul class="brief"><li>Goofy (right foot forward). Passed Hemel level 5 and did a level 5–6 day.</li>
+  <li><b>Learning now:</b> ${L.map(name).join(", ")||"nothing marked yet"}</li>
+  <li><b>Next on my list:</b> ${N.map(name).join(", ")||"—"}</li>
+  <li><b>Weak spots:</b> ${Object.values(WEAK).map(w=>w.toLowerCase()).join("; ")}</li>
+  <li><b>Trip goal:</b> comfortable on reds and first carves</li>
+  ${hw.length&&hw[0].d!==today()?`<li><b>Homework from last time:</b> ${hw.map(x=>`${name(byId[x.id])} (${esc(x.t)})`).join("; ")}</li>`:""}</ul>
+  <p class="muted">Then do what your instructor says; the app doesn't pick the lesson.</p></div>
+  <div class="pitem"><div class="role">After the lesson: homework</div>
+  <label class="muted" for="hwSkill">Skill</label>
+  <select id="hwSkill">${L.length?`<optgroup label="Learning now">${L.map((s,i)=>opt(s,!i)).join("")}</optgroup>`:""}${N.length?`<optgroup label="Next up">${N.map((s,i)=>opt(s,!L.length&&!i)).join("")}</optgroup>`:""}<optgroup label="Everything else">${rest.map(s=>opt(s,false)).join("")}</optgroup></select>
+  <textarea id="hwIn" placeholder="What did your instructor set? e.g. hockey stops on toeside, within 3 board lengths"></textarea>
+  <button class="btn wide" id="hwSave">Save homework</button><div class="saved">${msg||""}</div>
+  ${todays.length?`<ul class="hwl">${todays.map(x=>`<li><span><b>${name(byId[x.id])}</b>: ${esc(x.t)}</span></li>`).join("")}</ul>`:""}</div>`;
+}
+function renderPlan(msg=""){
+  const p=document.getElementById("plan"), pl=S.plan&&S.plan.date===today()&&DAYS[S.plan.type]?S.plan:null;
   let h=`<button class="close" data-close>✕</button><h2>Today's plan</h2><div class="muted">What kind of day is it?</div>
-  <div class="seg"><button data-t="lesson" class="${pl&&pl.type==="lesson"?"on":""}">🎓 Lesson day</button><button data-t="solo" class="${pl&&pl.type==="solo"?"on":""}">Solo day</button></div>`;
-  if(!pl)h+='<p class="muted">Pick a day type to get 2–3 skills to work on today.</p>';
-  else if(!pl.items.length)h+='<p>Nothing to suggest right now. Mark a skill as Learning, or open the tree to choose one.</p>';
-  else pl.items.forEach(it=>{const s=byId[it.id],{why,how}=para(it,pl.type),n=(S.notes[it.id]||[]).slice(-1)[0];
-    h+=`<div class="pitem"><div class="role">${it.role}</div><h3>${esc(s.name)}</h3>
-    <p>${esc(why)}</p><p>${esc(how)}</p>${n?`<p class="last">Your last note (${esc(n.d)}): ${esc(n.t)}</p>`:""}
-    <button class="btn plain wide" data-open="${s.id}">Open skill & log</button></div>`});
+  <div class="seg seg3">${Object.entries(DAYS).map(([k,v])=>`<button data-t="${k}" class="${pl&&pl.type===k?"on":""}">${v}</button>`).join("")}</div>`;
+  if(!pl)h+='<p class="muted">Lesson: a brief for your instructor and a place to log homework. With buddy or Solo: your homework first, then 2–3 skills to practise.</p>';
+  else if(pl.type==="lesson")h+=lessonView(msg);
+  else{
+    h+=homeworkCard();
+    if(!pl.items.length)h+='<p>Nothing else to suggest right now. Mark a skill as Learning, or open the tree to choose one.</p>';
+    pl.items.forEach(it=>{const s=byId[it.id];if(!s)return;const n=(S.notes[it.id]||[]).filter(x=>!x.hw).slice(-1)[0];
+      h+=`<div class="pitem"><div class="role">${pl.type==="buddy"?"Ride it together":"Practice"}</div><h3>${esc(s.name)}</h3>
+      <p>Picked because ${esc(reasons(s).join("; "))}.</p><p>${esc(how(s,pl.type))}</p>${n?`<p class="last">Your last note (${esc(n.d)}): ${esc(n.t)}</p>`:""}
+      <button class="btn plain wide" data-open="${s.id}">Open skill & log</button></div>`});
+  }
   p.innerHTML=h;
   p.querySelector("[data-close]").onclick=closeAll;
   p.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.lastType=b.dataset.t;makePlan(b.dataset.t)});
   p.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{document.getElementById("planSheet").classList.remove("show");openSkill(b.dataset.open)});
+  const hs=p.querySelector("#hwSave");
+  if(hs)hs.onclick=()=>{const id=p.querySelector("#hwSkill").value,t=p.querySelector("#hwIn").value.trim();if(!t||!byId[id])return;
+    (S.notes[id]=S.notes[id]||[]).push({d:today(),t,hw:true});save();renderPlan("Homework saved ✓")};
 }
 document.getElementById("planBtn").onclick=()=>{renderPlan();document.getElementById("planSheet").classList.add("show")};
 

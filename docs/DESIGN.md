@@ -53,10 +53,14 @@ The main job is to **plan what to practise next**. Tracking progress comes secon
 
 ## Today's plan
 
-- Choose a lesson day or a solo day, and the plan picks **2–3 skills max**.
-- Solo days skip lesson-only skills. Lesson days lead with a lesson focus, then afternoon practice.
-- Each pick gets a **short paragraph** on why it was chosen and how to spend the time, plus Dan's last note on that skill.
-- Only today's plan is kept, and skills in hidden branches are left out.
+Reworked Nov 2026 after Dan pointed out that on lesson days the instructor decides, and on other days he rides with **Sophie** (a snowboarder at a similar or slightly lower level).
+
+- Three kinds of day: **🎓 Lesson**, **👥 With buddy**, **Solo**.
+- **Lesson:** the app doesn't pick the lesson. It shows a **brief for the instructor** (goofy, Hemel level, what he's learning, what's next, weak spots, trip goal and last homework), and a form to log **homework** afterwards.
+- **Homework** is a free-text note on a skill, saved in `S.notes` with `hw:true` and shown with a "Homework" tag in the skill's notes. There's no due date or tick; the plan shows the homework from the **most recent lesson date**, and Dan deletes a homework note when it's finished.
+- **With buddy** and **Solo:** homework from the last lesson comes first, then **2** (buddy) or **3** (solo) skills to practise. Homework skills always qualify and rank top (+40), whatever their status or tag. Other picks skip lesson-only skills.
+- Buddy picks use partner versions of the drills: take turns and watch for the first common mistake, film each other, check each other on the test, and suggest the skill's prerequisite for Sophie if it's a stretch.
+- Each pick says why it was chosen, plus Dan's last (non-homework) note. Only today's plan is kept, and skills in switched-off branches are left out.
 - The plan doesn't adapt to snow or energy ("keep it simple").
 
 ## UI decisions
