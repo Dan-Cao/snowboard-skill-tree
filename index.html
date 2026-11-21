@@ -901,7 +901,7 @@ function drawLines(){
   });
 }
 let cur=null;
-function openSkill(id){cur=id;renderDetail();document.getElementById("sheet").classList.add("show");document.querySelector("#sheet .panel").scrollTop=0}
+function openSkill(id){if(cur&&cur!==id&&document.getElementById("sheet").classList.contains("show"))detailStack.push(cur);cur=id;renderDetail();document.getElementById("sheet").classList.add("show");document.querySelector("#sheet .panel").scrollTop=0}
 function renderDetail(msg=""){
   const s=byId[cur],x=st(s.id),notes=S.notes[s.id]||[],vids=S.videos[s.id]||[];
   const list=a=>"<ul>"+a.map(i=>"<li>"+esc(i)+"</li>").join("")+"</ul>";
@@ -1092,6 +1092,33 @@ function applyTheme(){
   THEMES.forEach(x=>document.body.classList.toggle(x.id,x===t&&x.id!=="night"));
   document.querySelector('meta[name="theme-color"]').setAttribute("content",t.bar);
   requestAnimationFrame(drawLines)}
+
+// ───── Back button: each open layer (focus bar, a sheet, each skill-to-skill step in details) is one history entry ─────
+// Android's back gesture closes the top layer instead of leaving the app. Closing with ✕ or a tap removes the entry again.
+let detailStack=[], hDepth=0, skipPop=false;
+const SHEETS=["sheet","planSheet","menuSheet","brSheet"];
+const isShown=i=>document.getElementById(i).classList.contains("show");
+function uiDepth(){if(!isShown("sheet"))detailStack=[];return (focus?1:0)+SHEETS.filter(isShown).length+detailStack.length}
+function syncHistory(){
+  const d=uiDepth();
+  while(hDepth<d){hDepth++;history.pushState({d:hDepth},"")}
+  if(hDepth>d){skipPop=true;history.go(d-hDepth);hDepth=d}
+}
+addEventListener("popstate",e=>{
+  if(skipPop){skipPop=false;return}
+  hDepth=Math.max(0,(e.state&&e.state.d)||0);
+  // close layers from the top until the screen matches the history entry we're now on
+  let guard=0;
+  while(uiDepth()>hDepth&&guard++<20){
+    if(detailStack.length&&isShown("sheet")){cur=detailStack.pop();renderDetail();document.querySelector("#sheet .panel").scrollTop=0}
+    else if(SHEETS.some(isShown))closeAll();
+    else if(focus)clearFocus();
+    else break;
+  }
+});
+new MutationObserver(()=>syncHistory()).observe(document.body,{subtree:true,attributes:true,attributeFilter:["class"]});
+const _openSkill=openSkill; openSkill=function(id){_openSkill(id);syncHistory()};
+if(history.state&&history.state.d>0){skipPop=true;history.go(-history.state.d)}else history.replaceState({d:0},"");
 
 load();applyTheme();renderTree();nudge();
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});

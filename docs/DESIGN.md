@@ -68,6 +68,7 @@ The main job is to **plan what to practise next**. Tracking progress comes secon
   - Tapping a skill highlights what it needs (pink) and what it unlocks (blue), and opens a bottom bar with status buttons.
   - The bar also shows the skill's one-line `desc`, so Dan can tell at a glance what it is and whether he's done it. The same line sits at the top of the details sheet.
   - Tapping the same skill again opens its details. Tapping any blank area closes focus.
+- **Back button** (Android back gesture): each open layer is a history entry, so back closes the top one instead of leaving the app: details → the previous skill (after following Needs/Unlocks) → focus → the tree. Today's plan, the menu and the branch chooser close the same way. Closing with ✕ or a tap removes the entry, so back never has to be pressed twice. Added Nov 2026 at Dan's request; see `tests/test_back.py`.
   - Dotted lines across the whole tree were rejected as unclear.
 - **Branch identity:** each branch has a colour stripe on its cards and a tinted lane. Tapping a lane heading highlights that branch.
 - **Progress tiles are show/hide switches** (Dan asked for hiding, not greying out). Tapping a tile removes that branch's skills from the main screen, including Core riding; the tile stays, dimmed and marked "hidden", so it can be tapped back on. This is view-only and saved as `hidden`: Today's plan still uses every branch switched on in the branch chooser.
