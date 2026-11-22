@@ -22,5 +22,5 @@ Personal snowboard skill tree PWA for Dan (goofy, intermediate). It's live at da
 
 ## Don'ts
 - Don't break loading of existing saved progress (`localStorage` key `sbtree.v1`). Add defaults in `fresh()`/`merge()`.
-- Don't load anything from a CDN; the app must work fully offline.
+- Ship everything the app needs with the app: no scripts, styles or fonts from a CDN or other site. The service worker only caches the files listed in `sw.js`, and the app must open with no signal on the mountain. If a library is worth it, copy it into the repo and add it to `FILES` in `sw.js`. Network calls that can fail and retry later (like the Dropbox backup) are fine.
 - Don't name specific runs in `area` tips unless you've checked them against the current piste map.

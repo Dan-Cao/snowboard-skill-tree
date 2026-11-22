@@ -1147,7 +1147,7 @@ function applyTheme(){
 // it can only see Dropbox/Apps/<app name>/. Its token is kept under its own key, so it never goes into backup files.
 // Every change uploads progress.json a few seconds later (or when signal comes back), and the first upload
 // each day also writes backups/YYYY-MM-DD.json, so a bad change can't wipe out older backups.
-const DBX_KEY="";  // Dropbox app key from the App Console (public; PKCE needs no secret). Empty hides the feature.
+const DBX_KEY="w97m69h6ixa0uxe";  // Dropbox app key from the App Console (public; PKCE needs no secret). Empty hides the feature.
 const DKEY="sbtree.dbx", DBX_API="https://api.dropboxapi.com", DBX_CONTENT="https://content.dropboxapi.com";
 const DBX_REDIRECT=location.origin+location.pathname.replace(/index\.html$/,"");
 let D={}, dbxTimer=null, dbxBusy=false, dbxGen=0, dbxAccess=null, dbxMsg="";

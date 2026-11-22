@@ -5,7 +5,8 @@ from playwright.async_api import async_playwright
 ROOT=pathlib.Path(__file__).resolve().parent.parent
 OUT=str(ROOT/"tests"/"out"); pathlib.Path(OUT).mkdir(exist_ok=True)
 APP="https://dan-cao.github.io/snowboard-skill-tree/"
-HTML=(ROOT/"index.html").read_text().replace('const DBX_KEY="";','const DBX_KEY="testkey";')
+import re
+HTML=re.sub(r'const DBX_KEY="[^"]*";','const DBX_KEY="testkey";',(ROOT/"index.html").read_text())
 assert 'DBX_KEY="testkey"' in HTML, "DBX_KEY constant not found"
 CORS={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"*","Access-Control-Allow-Methods":"POST, OPTIONS"}
 fails=[]
