@@ -753,11 +753,12 @@ function load(){
   }catch(e){storageOK=false;S=fresh();document.getElementById("banner").classList.add("show")}
 }
 function merge(d){const f=fresh();const o=Object.assign(f,d);o.status=Object.assign(fresh().status,d.status||{});o.branches=Object.assign({},DEFAULT_ON,d.branches||{});o.hidden=Object.assign({},d.hidden||{});if(d.foundOpen&&!(d.branches||{}).hasOwnProperty("found"))o.branches.found=true;delete o.foundOpen;if(!THEMES.some(t=>t.id===d.theme))o.theme=d.sun?"sun":"night";delete o.sun;return o}
-function save(change=true){
+function save(change=true,quiet=false){
   if(change)S.changes=(S.changes||0)+1;
   if(!storageOK)return;
   try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){storageOK=false;document.getElementById("banner").classList.add("show")}
   nudge();
+  if(!quiet)dbxQueue();
 }
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const st=id=>S.status[id]||"locked";
@@ -1099,7 +1100,8 @@ function renderMenu(){
   p.innerHTML=`<button class="close" data-close>✕</button><h2>Settings & backup</h2>
   <div class="card"><div class="toggle"><span><b>Branches</b><br><span class="muted">Show or hide tricks, park, backcountry and more</span></span><button class="btn" id="brM">Choose</button></div></div>
   <div class="card"><h3>Theme</h3><div class="themes">${THEMES.map(t=>`<button data-theme="${t.id}" class="${S.theme===t.id?"on":""}" aria-pressed="${S.theme===t.id}"><span class="tsw" style="background:${t.sw}"></span>${t.name}</button>`).join("")}</div><p class="muted">Sun is the high-contrast one for bright days.</p></div>
-  <div class="card"><h3>Backup</h3><p class="muted">Progress is saved on this phone. ${storageOK?"Saving is working ✓":"<b style='color:var(--danger)'>Saving is NOT working in this browser.</b>"} Last backup: ${S.lastBackup||"never"}.</p>
+  ${DBX_KEY?`<div class="card"><h3>Dropbox</h3><div id="dbxBox">${dbxCard()}</div></div>`:""}
+  <div class="card"><h3>Backup</h3><p class="muted">Progress is saved on this phone. ${storageOK?"Saving is working ✓":"<b style='color:var(--danger)'>Saving is NOT working in this browser.</b>"} Last backup: <span id="lastB">${S.lastBackup||"never"}</span>.</p>
   <button class="btn wide" id="expB">Download backup file</button><div style="height:8px"></div>
   <button class="btn plain wide" id="cpB">Copy backup text</button></div>
   <div class="card"><h3>Restore</h3><button class="btn plain wide" id="impF">Restore from backup file</button>
@@ -1113,18 +1115,19 @@ function renderMenu(){
   p.querySelector("#cpB").onclick=copyBackup;
   p.querySelector("#impF").onclick=()=>document.getElementById("fileIn").click();
   p.querySelector("#impT").onclick=()=>importText(p.querySelector("#pasteIn").value);
-  p.querySelector("#rst").onclick=()=>{p.querySelector("#rstC").innerHTML='<p>This deletes all statuses, notes and links. Back up first.</p><button class="btn wide" id="rstY" style="border-color:var(--danger);color:var(--danger)">Yes, reset everything</button>';
+  dbxWire();
+  p.querySelector("#rst").onclick=()=>{p.querySelector("#rstC").innerHTML='<p>This deletes all statuses, notes and links. Back up first.${D.refresh?" Dropbox keeps a dated copy from each day in Apps/On Edge/backups.":""}</p><button class="btn wide" id="rstY" style="border-color:var(--danger);color:var(--danger)">Yes, reset everything</button>';
     p.querySelector("#rstY").onclick=()=>{S=fresh();save(false);applyTheme();renderTree();renderMenu();menuMsg("Reset done.")}};
 }
 document.getElementById("fileIn").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>importText(r.result);r.readAsText(f);e.target.value=""};
-document.getElementById("menuBtn").onclick=()=>{renderMenu();document.getElementById("menuSheet").classList.add("show")};
-document.getElementById("nudgeBtn").onclick=()=>{renderMenu();document.getElementById("menuSheet").classList.add("show")};
+document.getElementById("menuBtn").onclick=()=>{dbxMsg="";renderMenu();document.getElementById("menuSheet").classList.add("show")};
+document.getElementById("nudgeBtn").onclick=()=>{dbxMsg="";renderMenu();document.getElementById("menuSheet").classList.add("show")};
 function nudge(){
   const n=document.getElementById("nudge");
   const days=S.lastBackup?Math.floor((new Date(today())-new Date(S.lastBackup))/864e5):null;
   const show=S.changes>0&&(days===null?S.changes>=3:days>=3);
   n.classList.toggle("show",show);
-  document.getElementById("nudgeTxt").textContent=`${S.changes} change${S.changes===1?"":"s"} since your last backup.`;
+  document.getElementById("nudgeTxt").textContent=`${S.changes} change${S.changes===1?"":"s"} since your last backup.`+(D.refresh?" Dropbox will upload them when you have signal.":"");
 }
 const THEMES=[
   {id:"night",name:"Night",bar:"#0b0f1a",sw:"linear-gradient(135deg,#0b0f1a 55%,#ff5fd2 55%)"},
@@ -1138,6 +1141,139 @@ function applyTheme(){
   THEMES.forEach(x=>document.body.classList.toggle(x.id,x===t&&x.id!=="night"));
   document.querySelector('meta[name="theme-color"]').setAttribute("content",t.bar);
   requestAnimationFrame(drawLines)}
+
+// ───── Dropbox automatic backup (upload only, Android) ─────
+// Browser-only OAuth with PKCE, so there's no server and no secret. The Dropbox app has "App folder" access:
+// it can only see Dropbox/Apps/<app name>/. Its token is kept under its own key, so it never goes into backup files.
+// Every change uploads progress.json a few seconds later (or when signal comes back), and the first upload
+// each day also writes backups/YYYY-MM-DD.json, so a bad change can't wipe out older backups.
+const DBX_KEY="";  // Dropbox app key from the App Console (public; PKCE needs no secret). Empty hides the feature.
+const DKEY="sbtree.dbx", DBX_API="https://api.dropboxapi.com", DBX_CONTENT="https://content.dropboxapi.com";
+const DBX_REDIRECT=location.origin+location.pathname.replace(/index\.html$/,"");
+let D={}, dbxTimer=null, dbxBusy=false, dbxGen=0, dbxAccess=null, dbxMsg="";
+function dLoad(){try{D=JSON.parse(localStorage.getItem(DKEY))||{}}catch(e){D={}}}
+function dSave(){try{localStorage.setItem(DKEY,JSON.stringify(D))}catch(e){}}
+const b64u=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const rnd=n=>b64u(crypto.getRandomValues(new Uint8Array(n)));
+async function dbxConnect(){
+  if(!navigator.onLine){dbxSay("Connecting needs signal.");return}
+  const v=rnd(48), state=rnd(12), ch=b64u(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v)));
+  D={verifier:v,state};dSave();
+  location.assign("https://www.dropbox.com/oauth2/authorize?"+new URLSearchParams({client_id:DBX_KEY,response_type:"code",code_challenge:ch,code_challenge_method:"S256",token_access_type:"offline",redirect_uri:DBX_REDIRECT,state}));
+}
+function setAccess(j){dbxAccess={t:j.access_token,exp:Date.now()+((j.expires_in||14400)-120)*1000}}
+async function dbxToken(){
+  if(dbxAccess&&Date.now()<dbxAccess.exp)return dbxAccess.t;
+  const r=await fetch(DBX_API+"/oauth2/token",{method:"POST",body:new URLSearchParams({grant_type:"refresh_token",refresh_token:D.refresh,client_id:DBX_KEY})});
+  const j=await r.json().catch(()=>({}));
+  if(j.error==="invalid_grant"){D={lost:true};dSave();throw "lost"}
+  if(!r.ok||!j.access_token)throw "http"+r.status;
+  setAccess(j);return dbxAccess.t;
+}
+// One Dropbox call; on 401 the access token is refreshed and the call is tried once more
+async function dbxCall(url,opt){
+  for(let i=0;i<2;i++){
+    const r=await fetch(url,Object.assign({},opt,{headers:Object.assign({Authorization:"Bearer "+await dbxToken()},opt.headers)}));
+    if(r.status===401&&i===0){dbxAccess=null;continue}
+    return r;
+  }
+}
+async function dbxPut(path,body){
+  const r=await dbxCall(DBX_CONTENT+"/2/files/upload",{method:"POST",body,headers:{"Content-Type":"application/octet-stream","Dropbox-API-Arg":JSON.stringify({path,mode:"overwrite",mute:true})}});
+  if(!r.ok)throw "http"+r.status;
+}
+async function dbxGet(path){ // returns the file text, or null if it isn't there
+  const r=await dbxCall(DBX_CONTENT+"/2/files/download",{method:"POST",headers:{"Dropbox-API-Arg":JSON.stringify({path})}});
+  if(r.status===409)return null;
+  if(!r.ok)throw "http"+r.status;
+  return r.text();
+}
+// Back from Dropbox's sign-in page with ?code=… (or ?error=…)
+async function dbxReturn(q){
+  history.replaceState(history.state,"",DBX_REDIRECT);
+  const {verifier,state}=D;dbxMsg="Connecting to Dropbox…";
+  if(q.get("error")){D={};dSave();dbxSay("Dropbox wasn't connected.");return}
+  if(!verifier||q.get("state")!==state){D={};dSave();dbxSay("That Dropbox sign-in didn't match. Try Connect again.");return}
+  try{
+    const r=await fetch(DBX_API+"/oauth2/token",{method:"POST",body:new URLSearchParams({code:q.get("code"),grant_type:"authorization_code",code_verifier:verifier,client_id:DBX_KEY,redirect_uri:DBX_REDIRECT})});
+    const j=await r.json(); if(!r.ok||!j.refresh_token)throw 0;
+    D={refresh:j.refresh_token,dirty:true};setAccess(j);dSave();
+    // A backup already in Dropbox (e.g. from an old phone) is never overwritten without asking
+    const t=await dbxGet("/progress.json");
+    if(t){let when="";try{when=(JSON.parse(t).exported||"").slice(0,10)}catch(e){}D.ask={when};dSave();dbxSay("Dropbox connected ✓ It already has a backup — choose below.")}
+    else{dbxSay("Dropbox connected ✓");await dbxUpload()}
+  }catch(e){D={};dSave();dbxSay("Couldn't finish connecting to Dropbox. Check signal and try again.")}
+}
+function dbxQueue(){
+  if(!D.refresh)return;
+  dbxGen++;D.dirty=true;dSave();
+  clearTimeout(dbxTimer);dbxTimer=setTimeout(dbxUpload,4000);
+}
+async function dbxUpload(){
+  clearTimeout(dbxTimer);
+  if(!D.refresh||D.ask||dbxBusy)return;
+  if(!navigator.onLine){D.err="offline";dSave();dbxShow();return}
+  dbxBusy=true;const gen=dbxGen,n=S.changes||0,day=today();
+  try{
+    const body=backupText();
+    await dbxPut("/progress.json",body);
+    if(D.snap!==day){await dbxPut("/backups/"+day+".json",body);D.snap=day}
+    if(gen===dbxGen)D.dirty=false;
+    D.last=new Date().toISOString();D.err=null;dSave();
+    S.lastBackup=day;S.changes=Math.max(0,(S.changes||0)-n);save(false,true);
+  }catch(e){
+    if(e!=="lost"){D.err=String(e).startsWith("http")?"server":"offline";dSave()}
+    if(D.refresh&&navigator.onLine)dbxTimer=setTimeout(dbxUpload,60000);
+  }finally{
+    dbxBusy=false;
+    if(D.dirty&&gen!==dbxGen&&D.refresh&&!D.err)dbxTimer=setTimeout(dbxUpload,4000);
+    dbxShow();
+  }
+}
+async function dbxRestore(){
+  try{const t=await dbxGet("/progress.json");if(t===null){dbxSay("There's no backup in Dropbox yet.");return}
+    delete D.ask;dSave();if(!importText(t))return;dbxSay("Restored from Dropbox ✓")}
+  catch(e){dbxSay(e==="lost"?"":"Couldn't reach Dropbox. Check signal and try again.")}
+}
+async function dbxDisconnect(){
+  const t=dbxAccess&&dbxAccess.t;D={};dbxAccess=null;dSave();clearTimeout(dbxTimer);
+  if(t)fetch(DBX_API+"/2/auth/token/revoke",{method:"POST",headers:{Authorization:"Bearer "+t}}).catch(()=>{});
+  dbxSay("Dropbox disconnected. Your files in Dropbox are kept.");
+}
+function dbxWhen(iso){const d=new Date(iso),t=d.toTimeString().slice(0,5),day=iso&&today()===d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");return day?"today "+t:d.toLocaleDateString()+" "+t}
+function dbxCard(){
+  const m=`<div class="saved" id="dbxMsg">${esc(dbxMsg)}</div>`;
+  if(!D.refresh)return `<p class="muted">${D.lost?"<b>Dropbox access was removed.</b> Connect again to keep backing up.":"Back up automatically to your Dropbox after every change. The app only gets its own folder, Apps/On Edge, nothing else in your Dropbox."}</p>
+    <button class="btn wide" id="dbxC">Connect Dropbox</button>${m}`;
+  if(D.ask)return `<p>Dropbox already has a backup${D.ask.when?" from "+esc(D.ask.when):""}. Nothing is uploaded until you choose.</p>
+    <button class="btn wide" id="dbxAR">Restore it to this phone</button><div style="height:8px"></div>
+    <button class="btn plain wide" id="dbxAK">Replace it with this phone's progress</button>${m}`;
+  const st=D.dirty?(D.err==="server"?"Dropbox had a problem — trying again in a minute.":"Waiting for signal — changes will upload when you're back online.")
+    :`Backed up automatically ✓${D.last?" Last upload "+dbxWhen(D.last)+".":""}`;
+  return `<p class="muted">${st} Daily copies are kept in Apps/On Edge/backups.</p>
+    <button class="btn plain wide" id="dbxR">Restore from Dropbox</button><div id="dbxRC"></div><div style="height:8px"></div>
+    <button class="btn plain wide" id="dbxD">Disconnect Dropbox</button>${m}`;
+}
+function dbxWire(){
+  const p=document.getElementById("dbxBox");if(!p)return;
+  const on=(id,f)=>{const b=p.querySelector(id);if(b)b.onclick=f};
+  on("#dbxC",dbxConnect);
+  on("#dbxAR",dbxRestore);
+  on("#dbxAK",()=>{delete D.ask;D.dirty=true;dSave();dbxUpload()});
+  on("#dbxD",dbxDisconnect);
+  on("#dbxR",()=>{p.querySelector("#dbxRC").innerHTML='<p>This replaces the progress on this phone with the copy in Dropbox.</p><button class="btn wide" id="dbxRY">Yes, restore from Dropbox</button>';p.querySelector("#dbxRY").onclick=dbxRestore});
+}
+function dbxShow(){const p=document.getElementById("dbxBox"),l=document.getElementById("lastB");if(p){p.innerHTML=dbxCard();dbxWire()}if(l)l.textContent=S.lastBackup||"never";nudge()}
+function dbxSay(t){dbxMsg=t;dbxShow()}
+function dbxInit(){
+  dLoad();
+  if(!DBX_KEY)return;
+  const q=new URLSearchParams(location.search);
+  if(q.has("code")||q.has("error")){dbxReturn(q);renderMenu();document.getElementById("menuSheet").classList.add("show")}
+  else if(D.refresh&&D.dirty)dbxUpload();
+  addEventListener("online",()=>{if(D.dirty)dbxUpload()});
+  document.addEventListener("visibilitychange",()=>{if(D.dirty)dbxUpload()});
+}
 
 // ───── Back button: each open layer (focus bar, a sheet, each skill-to-skill step in details) is one history entry ─────
 // Android's back gesture closes the top layer instead of leaving the app. Closing with ✕ or a tap removes the entry again.
@@ -1166,7 +1302,7 @@ new MutationObserver(()=>syncHistory()).observe(document.body,{subtree:true,attr
 const _openSkill=openSkill; openSkill=function(id){_openSkill(id);syncHistory()};
 if(history.state&&history.state.d>0){skipPop=true;history.go(-history.state.d)}else history.replaceState({d:0},"");
 
-load();applyTheme();renderTree();nudge();
+load();dbxInit();applyTheme();renderTree();nudge();
 if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 addEventListener("resize",()=>requestAnimationFrame(drawLines));
 // In focus mode, tapping anywhere that isn't a skill, the focus bar, a sheet or a button closes focus

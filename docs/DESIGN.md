@@ -88,7 +88,15 @@ Reworked Nov 2026 after Dan pointed out that on lesson days the instructor decid
 - **Never lose progress.** There's backup export (file download or copied text) and restore, and the app nudges for a backup after changes.
 - `merge()` must keep old saved data loading, so new fields need defaults.
 - Updating the app may require re-importing a backup; that's acceptable.
-- **Dropbox sync** is a parked stretch goal. The plan was browser-only OAuth PKCE with an app-folder app and a per-skill merge.
+- **Dropbox automatic backup** (Nov 2026). Dan only uses Android and wants automatic backup, not sync between devices, so it's **upload-only** and needs no merge.
+  - Browser-only OAuth with PKCE, so there's no server and no secret. The Dropbox app has **App folder** access only (Dropbox/Apps/On Edge/). `DBX_KEY` in app.html holds the public app key; when it's empty the Dropbox card is hidden.
+  - The refresh token is kept in `localStorage` under its own key, `sbtree.dbx`, so it **never goes into backup files**.
+  - Every saved change uploads `progress.json` about 4 s later. With no signal it stays pending (also across closing the app) and uploads on the next open, `online` event or return to the app. The first upload each day also writes `backups/YYYY-MM-DD.json`, so a bad change or a reset can't wipe out older copies. Dropbox's own version history is a further safety net.
+  - A successful upload counts as a backup: it sets `lastBackup` and clears the change count, so the backup nudge only appears when uploads have been waiting for days.
+  - **Connecting never overwrites an existing Dropbox backup without asking** (e.g. a new phone): the app offers "Restore it to this phone" or "Replace it with this phone's progress".
+  - ☰ also has Restore from Dropbox (with a confirm) and Disconnect (revokes the token and keeps the files). File export and restore stay as a fallback.
+  - Android only: an installed PWA and Chrome share storage, so the normal redirect sign-in works. iOS would need a paste-the-code sign-in, which wasn't built.
+  - **Setup:** in the Dropbox App Console (dropbox.com/developers/apps), create an app with **Scoped access** and **App folder**. Under Permissions, tick `files.content.write` and `files.content.read` and submit. Under Settings, add the redirect URI `https://dan-cao.github.io/snowboard-skill-tree/` (exactly, with the trailing slash), and leave "Allow public clients (Implicit Grant & PKCE)" on Allow. Paste the App key into `DBX_KEY`. The app can stay in development status.
 
 ## Verification process
 
@@ -97,3 +105,4 @@ These were agreed as acceptance checks:
 1. **Before shipping content changes,** an independent review against BASI practice, checking goofy left/right, measurable tests, prerequisites and safety. Use a separate agent that didn't write the content.
 2. **Phone-size tests** at 390 px and 700 px: no sideways overflow, no overlapping cards, tap targets at least 44 px, no JS errors. See `tests/`.
 3. **Offline and backup:** the service worker serves the app with no network, and backup → wipe → restore round-trips.
+4. **Dropbox backup:** `tests/test_dropbox.py` runs against a fake Dropbox: connect, upload after a change, token refresh, no signal then catch-up, new phone restore without overwriting, disconnect and revoked access.
